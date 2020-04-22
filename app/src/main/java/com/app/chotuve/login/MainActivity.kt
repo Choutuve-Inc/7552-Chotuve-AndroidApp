@@ -1,4 +1,4 @@
-package com.app.chotuve
+package com.app.chotuve.login
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -7,11 +7,13 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_main.view.*
+import com.app.chotuve.R
+import com.app.chotuve.register.RegisterActivity
+import com.app.chotuve.home.HomePageActivity
 
 class MainActivity : AppCompatActivity() {
 
-    var TAG: String = "Login Screen"
+    private val TAG: String = "Login Screen"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)

@@ -17,13 +17,14 @@
         app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="109dp"
-        android:layout_height="85dp"
-        android:layout_marginTop="204dp"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_video_feed"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnLogOut"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/ic_media_play" />
+        />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

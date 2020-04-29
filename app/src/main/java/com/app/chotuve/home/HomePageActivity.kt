@@ -5,13 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.app.chotuve.login.MainActivity
+import com.app.chotuve.login.LoginActivity
 import com.app.chotuve.R
+import com.app.chotuve.upload.UploadActivity
 import kotlinx.android.synthetic.main.activity_home_page.*
 
 class HomePageActivity  : AppCompatActivity() {
@@ -24,15 +23,21 @@ class HomePageActivity  : AppCompatActivity() {
         setContentView(R.layout.activity_home_page)
 
         initRecycleView()
-        val btnLogOut: Button = findViewById(R.id.btnLogOut)
+        val btnLogOut: Button = findViewById(R.id.btn_log_out)
+        val btnUpload: Button = findViewById(R.id.btn_upload)
 
         addDataSet()
         btnLogOut.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "Log Out Button Clicked")
-            //Account creation logic here
-            val intentToLoginPage = Intent(this@HomePageActivity, MainActivity::class.java)
+            val intentToLoginPage = Intent(this@HomePageActivity, LoginActivity::class.java)
             toastMessage("Correctly Logged Out")
             startActivity(intentToLoginPage)
+        })
+
+        btnUpload.setOnClickListener(View.OnClickListener {
+            Log.d(TAG, "Upload Button Clicked")
+            val intentToUploadPage = Intent(this@HomePageActivity, UploadActivity::class.java)
+            startActivity(intentToUploadPage)
         })
     }
 

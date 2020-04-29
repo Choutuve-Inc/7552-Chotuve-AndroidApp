@@ -11,7 +11,7 @@ import com.app.chotuve.R
 import com.app.chotuve.register.RegisterActivity
 import com.app.chotuve.home.HomePageActivity
 
-class MainActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
 
     private val TAG: String = "Login Screen"
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,21 +24,21 @@ class MainActivity : AppCompatActivity() {
         btnSignIn.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "Sign In Button Clicked")
             //Login Auth logic here
-            val intentToHomePage = Intent(this@MainActivity, HomePageActivity::class.java)
+            val intentToHomePage = Intent(this@LoginActivity, HomePageActivity::class.java)
             toastMessage("Login Successful")
             startActivity(intentToHomePage)
         })
 
         btnRegister.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "Sign Up Button Clicked")
-            val intentToRegister = Intent(this@MainActivity, RegisterActivity::class.java)
+            val intentToRegister = Intent(this@LoginActivity, RegisterActivity::class.java)
             startActivity(intentToRegister)
         })
 
     }
 
     private fun toastMessage(message: String) {
-        Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
+        Toast.makeText(this@LoginActivity, message, Toast.LENGTH_LONG).show()
     }
 
 }

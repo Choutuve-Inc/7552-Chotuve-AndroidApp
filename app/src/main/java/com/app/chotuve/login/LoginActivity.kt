@@ -16,10 +16,10 @@ class LoginActivity : AppCompatActivity() {
     private val TAG: String = "Login Screen"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_login)
 
-        val btnSignIn: Button = findViewById(R.id.btnLogin)
-        val btnRegister: Button = findViewById(R.id.btnRegister)
+        val btnSignIn: Button = findViewById(R.id.btn_login_login)
+        val btnRegister: Button = findViewById(R.id.btn_login_register)
 
         btnSignIn.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "Sign In Button Clicked")

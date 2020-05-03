@@ -23,8 +23,8 @@ class HomePageActivity  : AppCompatActivity() {
         setContentView(R.layout.activity_home_page)
 
         initRecycleView()
-        val btnLogOut: Button = findViewById(R.id.btn_log_out)
-        val btnUpload: Button = findViewById(R.id.btn_upload)
+        val btnLogOut: Button = findViewById(R.id.btn_home_log_out)
+        val btnUpload: Button = findViewById(R.id.btn_home_upload)
 
         addDataSet()
         btnLogOut.setOnClickListener(View.OnClickListener {
@@ -42,7 +42,7 @@ class HomePageActivity  : AppCompatActivity() {
     }
 
     private fun initRecycleView(){
-        recycler_view_video_feed.apply {
+        rec_home_feed.apply {
             layoutManager = LinearLayoutManager(this@HomePageActivity)
             val topSpacingDecoration = TopSpacingItemDecoration(15)
             addItemDecoration(topSpacingDecoration)

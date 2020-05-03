@@ -6,14 +6,12 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.app.chotuve.R
 import com.app.chotuve.home.HomePageActivity
 import com.google.firebase.storage.FirebaseStorage
@@ -32,6 +30,10 @@ class UploadActivity  : AppCompatActivity() {
         val btnAccept: Button = findViewById(R.id.btn_upload_accept)
         val btnCancel: Button = findViewById(R.id.btn_upload_cancel)
         val btnSelectVideo: Button = findViewById(R.id.btn_upload_select_video)
+        val progressBar: ProgressBar = findViewById(R.id.bar_upload_progress_upload)
+        val txtProgress: TextView = findViewById(R.id.txt_upload_progress)
+        progressBar.visibility = ProgressBar.INVISIBLE
+        txtProgress.visibility = TextView.INVISIBLE
 
 
         btnAccept.setOnClickListener(View.OnClickListener {
@@ -46,10 +48,8 @@ class UploadActivity  : AppCompatActivity() {
                 // Display the alert dialog on app interface
                 dialog.show()
             }else {
+                buttonEnableController(false)
                 val filename = uploadVideoToStorage()
-                //send filename to API
-                val intentToLoginPage = Intent(this@UploadActivity, HomePageActivity::class.java)
-                startActivity(intentToLoginPage)
             }
         })
 
@@ -101,25 +101,53 @@ class UploadActivity  : AppCompatActivity() {
         selectedVideoThumbnail!!.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val thumbnailData = baos.toByteArray()
 
+        val progressBar: ProgressBar = findViewById(R.id.bar_upload_progress_upload)
+        val txtProgress: TextView = findViewById(R.id.txt_upload_progress)
+        progressBar.visibility = ProgressBar.VISIBLE
+        txtProgress.visibility = ProgressBar.VISIBLE
 
         refVideos.putFile(selectedVideo!!)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d(TAG, "Video uploaded successfully")
+                    //send filename to API
+                    val intentToLoginPage = Intent(this@UploadActivity, HomePageActivity::class.java)
+                    buttonEnableController(true)
+                    startActivity(intentToLoginPage)
                 } else {
                     Log.d(TAG, "failed to upload: ${task.exception?.message}")
+                    buttonEnableController(true)
                 }
+            }
+            .addOnProgressListener {
+                val progress: Long = (100 * it.bytesTransferred).div(it.totalByteCount)
+                progressBar.progress = progress.toInt()
+                txtProgress.text = "$progress%"
+                Log.d(TAG, "Progress: $progress")
             }
         refThumbnails.putBytes(thumbnailData)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d(TAG, "Thumbnail uploaded successfully")
+
                 } else {
                     Log.d(TAG, "failed to upload: ${task.exception?.message}")
+                    buttonEnableController(true)
                 }
             }
+
         return filename
 
+    }
+
+    private fun buttonEnableController(boolean: Boolean){
+        val btnAccept: Button = findViewById(R.id.btn_upload_accept)
+        val btnCancel: Button = findViewById(R.id.btn_upload_cancel)
+        val btnSelectVideo: Button = findViewById(R.id.btn_upload_select_video)
+
+        btnAccept.isEnabled = boolean
+        btnCancel.isEnabled = boolean
+        btnSelectVideo.isEnabled = boolean
     }
 
     private fun toastMessage(message: String) {

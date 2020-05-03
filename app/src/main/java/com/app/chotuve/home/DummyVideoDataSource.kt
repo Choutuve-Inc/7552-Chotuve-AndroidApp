@@ -11,24 +11,31 @@ class DummyVideoDataSource {
     companion object{
 
         fun createDummyDataSet(): ArrayList<ModelVideo> {
-            var url: String = ""
-            Log.d("TEST", "TEST")
-            val storage = FirebaseStorage.getInstance()
+            val storage = FirebaseStorage.getInstance().getReference()
             val list = ArrayList<ModelVideo>()
-            val downloadTask = storage.getReference("/thumbnails/80ab6f5f-2e0f-47f8-850a-f6565b6534cb").downloadUrl
-                .addOnSuccessListener {
-                    url = it.toString()
-                    list.add(
-                        ModelVideo(
-                            "Title 1",
-                            "Jhon",
-                            url,
-                            "Apr 02, 2020"
-                        )
-                    )
-                    Log.d("SUCCESS", url)
-                }.addOnFailureListener {
-                    Log.d("ERROR", it.message)
+
+            storage.child("thumbnails/").listAll()
+                .addOnSuccessListener { listResult ->
+                    listResult.items.forEach { item ->
+                        item.downloadUrl
+                            .addOnSuccessListener {
+                                var url = it.toString()
+                                list.add(
+                                    ModelVideo(
+                                        "Title 1",
+                                        "Jhon",
+                                        url,
+                                        "Apr 02, 2020"
+                                    )
+                                )
+                                Log.d("SUCCESS", url)
+                            }.addOnFailureListener {
+                                Log.d("ERROR", it.message)
+                            }
+                    }
+                }
+                .addOnFailureListener {
+                    // Uh-oh, an error occurred!
                 }
 
             list.add(

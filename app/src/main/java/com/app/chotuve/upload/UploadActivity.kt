@@ -144,10 +144,14 @@ class UploadActivity  : AppCompatActivity() {
         val btnAccept: Button = findViewById(R.id.btn_upload_accept)
         val btnCancel: Button = findViewById(R.id.btn_upload_cancel)
         val btnSelectVideo: Button = findViewById(R.id.btn_upload_select_video)
+        val txtTitle: TextView = findViewById(R.id.txt_upload_description)
+        val txtDescription: TextView = findViewById(R.id.txt_upload_description)
 
         btnAccept.isEnabled = boolean
         btnCancel.isEnabled = boolean
         btnSelectVideo.isEnabled = boolean
+        txtTitle.isEnabled = boolean
+        txtDescription.isEnabled = boolean
     }
 
     private fun toastMessage(message: String) {

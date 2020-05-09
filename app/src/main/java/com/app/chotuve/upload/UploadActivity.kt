@@ -11,17 +11,23 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
 import com.app.chotuve.R
 import com.app.chotuve.home.HomePageActivity
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.github.kittinunf.fuel.core.response
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
 import java.util.*
 
 
 class UploadActivity  : AppCompatActivity() {
     private val TAG: String = "Upload Screen"
+    private val MB_SIZE = 1048576.0
+    private val serverURL: String = "https://choutuve-app-server.herokuapp.com/videos"
     private var selectedVideo: Uri? = null
+    private var selectedVideoSize: Double = 0.0
     private var selectedVideoThumbnail: Bitmap? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,6 +109,16 @@ class UploadActivity  : AppCompatActivity() {
 
         val progressBar: ProgressBar = findViewById(R.id.bar_upload_progress_upload)
         val txtProgress: TextView = findViewById(R.id.txt_upload_progress)
+        val txtTitle: EditText = findViewById(R.id.edi_upload_title)
+        val txtDesc: EditText = findViewById(R.id.edi_upload_description)
+        val videoTitle: String = txtTitle.text.toString()
+        val videoDesc: String = txtDesc.text.toString()
+
+        var date = Date()
+        val formatter = SimpleDateFormat("YYYY-MM-dd")
+        val dateString: String = formatter.format(date)
+
+
         progressBar.visibility = ProgressBar.VISIBLE
         txtProgress.visibility = ProgressBar.VISIBLE
 
@@ -114,6 +130,7 @@ class UploadActivity  : AppCompatActivity() {
                     val intentToLoginPage = Intent(this@UploadActivity, HomePageActivity::class.java)
                     buttonEnableController(true)
                     startActivity(intentToLoginPage)
+                    postVideo(filename, filename, "User1", videoTitle, dateString, videoDesc, selectedVideoSize.toString())
                 } else {
                     Log.d(TAG, "failed to upload: ${task.exception?.message}")
                     buttonEnableController(true)
@@ -121,6 +138,7 @@ class UploadActivity  : AppCompatActivity() {
             }
             .addOnProgressListener {
                 val progress: Long = (100 * it.bytesTransferred).div(it.totalByteCount)
+                selectedVideoSize = it.totalByteCount/MB_SIZE
                 progressBar.progress = progress.toInt()
                 txtProgress.text = "$progress%"
                 Log.d(TAG, "Progress: $progress")
@@ -137,6 +155,28 @@ class UploadActivity  : AppCompatActivity() {
             }
 
         return filename
+
+    }
+
+    private fun postVideo(url: String, thumbnail: String, user: String, title: String, date: String, description: String, size: String) {
+        var resultCode: Int
+        Log.d(TAG, "Size: $size")
+        Fuel.post(serverURL)
+            .jsonBody("{ \"user\" : \"$user\"," +
+                    " \"title\" : \"$title\", " +
+                    " \"description\" : \"$description\", " +
+                    " \"date\" : \"$date\", " +
+                    " \"url\" : \"$url\", " +
+                    " \"thumbnail\" : \"$thumbnail\", " +
+                    " \"size\" : $size " +
+                    "}")
+            .also { println(it) }
+            .response { request, response, result ->
+                response.statusCode
+                response.body()
+                Log.d(TAG, "resultado code ${response.statusCode}")
+                Log.d(TAG, "resultado body ${response.body()}")
+            }
 
     }
 

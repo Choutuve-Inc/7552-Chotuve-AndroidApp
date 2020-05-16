@@ -8,7 +8,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.chotuve.R
-import com.app.chotuve.login.MainActivity
+import com.app.chotuve.login.LoginActivity
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -23,14 +23,14 @@ class RegisterActivity : AppCompatActivity() {
         btnAccept.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "Accept Button Clicked")
             //Account creation logic here
-            val intentToLoginPage = Intent(this@RegisterActivity, MainActivity::class.java)
+            val intentToLoginPage = Intent(this@RegisterActivity, LoginActivity::class.java)
             toastMessage("Account Created")
             startActivity(intentToLoginPage)
         })
 
         btnCancel.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "Cancel Button Clicked")
-            val intentCancel = Intent(this@RegisterActivity, MainActivity::class.java)
+            val intentCancel = Intent(this@RegisterActivity, LoginActivity::class.java)
             startActivity(intentCancel)
         })
     }

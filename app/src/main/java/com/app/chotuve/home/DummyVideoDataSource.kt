@@ -1,5 +1,8 @@
 package com.app.chotuve.home
 
+import android.util.Log
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.storage.FirebaseStorage
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -8,15 +11,33 @@ class DummyVideoDataSource {
     companion object{
 
         fun createDummyDataSet(): ArrayList<ModelVideo> {
+            val storage = FirebaseStorage.getInstance().getReference()
             val list = ArrayList<ModelVideo>()
-            list.add(
-                ModelVideo(
-                    "Title 1",
-                    "Jhon",
-                    "https://raw.githubusercontent.com/mitchtabian/Blog-Images/master/digital_ocean.png",
-                    "Apr 02, 2020"
-                )
-            )
+
+            storage.child("thumbnails/").listAll()
+                .addOnSuccessListener { listResult ->
+                    listResult.items.forEach { item ->
+                        item.downloadUrl
+                            .addOnSuccessListener {
+                                var url = it.toString()
+                                list.add(
+                                    ModelVideo(
+                                        "Title 1",
+                                        "Jhon",
+                                        url,
+                                        "Apr 02, 2020"
+                                    )
+                                )
+                                Log.d("SUCCESS", url)
+                            }.addOnFailureListener {
+                                Log.d("ERROR", it.message)
+                            }
+                    }
+                }
+                .addOnFailureListener {
+                    // Uh-oh, an error occurred!
+                }
+
             list.add(
                 ModelVideo(
                     "Title 2",
@@ -83,6 +104,7 @@ class DummyVideoDataSource {
             )
             return list
         }
+
 
     }
 }

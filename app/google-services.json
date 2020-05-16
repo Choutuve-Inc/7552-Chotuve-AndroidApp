@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "304738620181",
+    "firebase_url": "https://chotuve-android-media.firebaseio.com",
+    "project_id": "chotuve-android-media",
+    "storage_bucket": "chotuve-android-media.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:304738620181:android:bc9e323aef5677c97ccf1c",
+        "android_client_info": {
+          "package_name": "com.app.chotuve"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "304738620181-7j6qe79mtvtfpm43uivap4251fh60l66.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDdhUuMLWV-b6UUtmB7EQLstwj_VXDy_nM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "304738620181-7j6qe79mtvtfpm43uivap4251fh60l66.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

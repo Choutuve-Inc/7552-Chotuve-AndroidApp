@@ -15,6 +15,8 @@
             android:id="@+id/thumbnail"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:maxHeight="320dp"
+            android:maxWidth="240dp"
             android:layout_margin="0dp"
             android:adjustViewBounds="true"
             android:paddingBottom="0.5dp"

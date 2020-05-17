@@ -1,5 +1,6 @@
 package com.app.chotuve.login
 
+import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -9,10 +10,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.app.chotuve.R
+import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.register.RegisterActivity
 import com.app.chotuve.home.HomePageActivity
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.github.kittinunf.result.Result
 
 class LoginActivity : AppCompatActivity() {
 
@@ -33,11 +36,8 @@ class LoginActivity : AppCompatActivity() {
             //Login Auth logic here
             var email: String = txtUser.text.toString()
             var pass: String = txtPass.text.toString()
-            var result = loginRequest(email, pass)
+            loginRequest(email, pass)
 
-            val intentToHomePage = Intent(this@LoginActivity, HomePageActivity::class.java)
-            toastMessage("Login Successful")
-            startActivity(intentToHomePage)
         })
 
         btnRegister.setOnClickListener(View.OnClickListener {
@@ -52,22 +52,42 @@ class LoginActivity : AppCompatActivity() {
         Toast.makeText(this@LoginActivity, message, Toast.LENGTH_LONG).show()
     }
 
-    private fun loginRequest(email: String, password: String): String {
-        var token: String = ""
+    private fun loginRequest(email: String, password: String) {
         val tipo: String = "mailPass"
         Fuel.post(serverURL)
-            .jsonBody("{ \"email\" : \"$email\"," +
-                    " \"password\" : \"$password\", " +
-                    " \"tipo\" : \"$tipo\" " +
-                    "}")
-            .also { println(it) }
+            .jsonBody(
+                "{ \"email\" : \"$email\"," +
+                        " \"password\" : \"$password\", " +
+                        " \"tipo\" : \"$tipo\" " +
+                        "}"
+            )
             .response { request, response, result ->
-                response.statusCode
-                var body = response.body()
 
-                Log.d(TAG, "resultado code ${response.statusCode}")
-                token = body.asString("application/json")
+                when (result) {
+                    is Result.Success -> {
+                        response.statusCode
+                        var body = response.body()
+
+                        Log.d(TAG, "Successful Login: ${response.statusCode}")
+                        val token = body.asString("application/json")
+                        ApplicationContext.setConnectedUser(email, token)
+
+                        val intentToHomePage =
+                            Intent(this@LoginActivity, HomePageActivity::class.java)
+                        toastMessage("Login Successful")
+                        startActivity(intentToHomePage)
+                    }
+                    is Result.Failure -> {
+
+                        val builder = AlertDialog.Builder(this@LoginActivity)
+                        builder.setTitle("Authentication Error")
+                        builder.setMessage("Incorrect Username or Password.\nPlease try Again.")
+                        val dialog: AlertDialog = builder.create()
+                        dialog.show()
+
+                        Log.d(TAG, "Unsuccessful login: ${response.statusCode}")
+                    }
+                }
             }
-        return token
     }
 }

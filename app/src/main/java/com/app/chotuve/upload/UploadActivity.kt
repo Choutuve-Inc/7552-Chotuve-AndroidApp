@@ -12,13 +12,12 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.app.chotuve.R
+import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.home.HomePageActivity
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
-import com.github.kittinunf.fuel.core.response
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -114,9 +113,7 @@ class UploadActivity  : AppCompatActivity() {
         val videoTitle: String = txtTitle.text.toString()
         val videoDesc: String = txtDesc.text.toString()
 
-        var date = Date()
-        val formatter = SimpleDateFormat("YYYY-MM-dd")
-        val dateString: String = formatter.format(date)
+        val dateString: String = ApplicationContext.getCurrentDate()
 
 
         progressBar.visibility = ProgressBar.VISIBLE
@@ -130,7 +127,7 @@ class UploadActivity  : AppCompatActivity() {
                     val intentToLoginPage = Intent(this@UploadActivity, HomePageActivity::class.java)
                     buttonEnableController(true)
                     startActivity(intentToLoginPage)
-                    postVideo(filename, filename, "User1", videoTitle, dateString, videoDesc, selectedVideoSize.toString())
+                    postVideo(filename, filename, ApplicationContext.getConnectedUsername(), videoTitle, dateString, videoDesc, selectedVideoSize.toString(), ApplicationContext.getConnectedToken())
                 } else {
                     Log.d(TAG, "failed to upload: ${task.exception?.message}")
                     buttonEnableController(true)
@@ -158,11 +155,12 @@ class UploadActivity  : AppCompatActivity() {
 
     }
 
-    private fun postVideo(url: String, thumbnail: String, user: String, title: String, date: String, description: String, size: String) {
+    private fun postVideo(url: String, thumbnail: String, user: String, title: String, date: String, description: String, size: String, token:String) {
         var resultCode: Int
         Log.d(TAG, "Size: $size")
         Fuel.post(serverURL)
             .jsonBody("{ \"user\" : \"$user\"," +
+                    " \"token\" : \"$token\", " +
                     " \"title\" : \"$title\", " +
                     " \"description\" : \"$description\", " +
                     " \"date\" : \"$date\", " +
@@ -177,6 +175,7 @@ class UploadActivity  : AppCompatActivity() {
                 Log.d(TAG, "resultado code ${response.statusCode}")
                 Log.d(TAG, "resultado body ${response.body()}")
             }
+
 
     }
 

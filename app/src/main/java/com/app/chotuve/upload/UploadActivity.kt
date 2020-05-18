@@ -17,6 +17,10 @@ import com.app.chotuve.home.HomePageActivity
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -123,11 +127,11 @@ class UploadActivity  : AppCompatActivity() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Log.d(TAG, "Video uploaded successfully")
-                    //send filename to API
+                    postVideo(filename, filename, ApplicationContext.getConnectedUsername(), videoTitle, dateString, videoDesc, selectedVideoSize.toString(), ApplicationContext.getConnectedToken())
+
                     val intentToLoginPage = Intent(this@UploadActivity, HomePageActivity::class.java)
                     buttonEnableController(true)
                     startActivity(intentToLoginPage)
-                    postVideo(filename, filename, ApplicationContext.getConnectedUsername(), videoTitle, dateString, videoDesc, selectedVideoSize.toString(), ApplicationContext.getConnectedToken())
                 } else {
                     Log.d(TAG, "failed to upload: ${task.exception?.message}")
                     buttonEnableController(true)
@@ -158,25 +162,26 @@ class UploadActivity  : AppCompatActivity() {
     private fun postVideo(url: String, thumbnail: String, user: String, title: String, date: String, description: String, size: String, token:String) {
         var resultCode: Int
         Log.d(TAG, "Size: $size")
-        Fuel.post(serverURL)
-            .jsonBody("{ \"user\" : \"$user\"," +
-                    " \"token\" : \"$token\", " +
-                    " \"title\" : \"$title\", " +
-                    " \"description\" : \"$description\", " +
-                    " \"date\" : \"$date\", " +
-                    " \"url\" : \"$url\", " +
-                    " \"thumbnail\" : \"$thumbnail\", " +
-                    " \"size\" : $size " +
-                    "}")
-            .also { println(it) }
-            .response { request, response, result ->
-                response.statusCode
-                response.body()
-                Log.d(TAG, "resultado code ${response.statusCode}")
-                Log.d(TAG, "resultado body ${response.body()}")
-            }
-
-
+        CoroutineScope(IO).launch {
+            val (request, response, result) = Fuel.post(serverURL)
+                .jsonBody(
+                    "{ \"user\" : \"$user\"," +
+                            " \"token\" : \"$token\", " +
+                            " \"title\" : \"$title\", " +
+                            " \"description\" : \"$description\", " +
+                            " \"date\" : \"$date\", " +
+                            " \"url\" : \"$url\", " +
+                            " \"thumbnail\" : \"$thumbnail\", " +
+                            " \"size\" : $size " +
+                            "}"
+                )
+                .also { println(it) }
+                .response()
+            response.statusCode
+            response.body()
+            Log.d(TAG, "resultado code ${response.statusCode}")
+            Log.d(TAG, "resultado body ${response.body()}")
+        }
     }
 
     private fun buttonEnableController(boolean: Boolean){

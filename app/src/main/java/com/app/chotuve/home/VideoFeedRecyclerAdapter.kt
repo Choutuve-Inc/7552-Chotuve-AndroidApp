@@ -11,7 +11,7 @@ import kotlinx.android.synthetic.main.layout_video_list_item.view.*
 
 class VideoFeedRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
-    private var items: List<ModelVideo> = ArrayList()
+    private var items: ArrayList<ModelVideo> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return VideoOnFeedViewHolder(
@@ -32,8 +32,12 @@ class VideoFeedRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>()
         }
     }
 
-    fun submitList(videoList: List<ModelVideo>){
+    fun submitList(videoList: ArrayList<ModelVideo>){
         items = videoList
+    }
+
+    fun addItem(video: ModelVideo){
+        items.add(video)
     }
 
     class VideoOnFeedViewHolder constructor(

@@ -13,6 +13,12 @@ import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.login.LoginActivity
 import com.app.chotuve.upload.UploadActivity
 import kotlinx.android.synthetic.main.activity_home_page.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class HomePageActivity  : AppCompatActivity() {
 
@@ -60,10 +66,36 @@ class HomePageActivity  : AppCompatActivity() {
         }
     }
 
-    private fun addDataSet(){
-        val data = VideoDataSource.createDataSet()
-        videoFeedAdapter.submitList(data)
+    private fun addDataSet() {
+        CoroutineScope(IO).launch {
+            getData()
+        }
     }
+
+    private suspend fun getData() {
+        val videos = VideoDataSource.getVideosFromHTTP()
+        for (i in 0 until videos.length()) {
+            val item = videos.getJSONObject(i)
+            val date = item["date"] as String
+            val title = item["title"] as String
+            val user = item["user"] as String
+            val thumbURL: String = item["thumbnail"] as String
+            CoroutineScope(IO).launch{
+                val video = VideoDataSource.getVideoFromFirebase(date, title, user, thumbURL)
+                addVideoToRecyclerView(video)
+            }
+        }
+        Log.d(TAG, "Videos got.")
+    }
+
+    private suspend fun addVideoToRecyclerView(video:ModelVideo){
+        withContext(Main){
+            Log.d(TAG, "Add Item Sent.")
+            videoFeedAdapter.addItem(video)
+            videoFeedAdapter.notifyDataSetChanged()
+        }
+    }
+
 
     private fun toastMessage(message: String) {
         Toast.makeText(this@HomePageActivity, message, Toast.LENGTH_LONG).show()

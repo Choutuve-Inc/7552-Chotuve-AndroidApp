@@ -70,7 +70,7 @@ class LoginActivity : AppCompatActivity() {
 
                         Log.d(TAG, "Successful Login: ${response.statusCode}")
                         val token = body.asString("application/json")
-                        ApplicationContext.setConnectedUser(email, token)
+                        ApplicationContext.setConnectedUser(email, token.substring(1, token.length-1))
 
                         val intentToHomePage =
                             Intent(this@LoginActivity, HomePageActivity::class.java)
@@ -80,8 +80,13 @@ class LoginActivity : AppCompatActivity() {
                     is Result.Failure -> {
 
                         val builder = AlertDialog.Builder(this@LoginActivity)
-                        builder.setTitle("Authentication Error")
-                        builder.setMessage("Incorrect Username or Password.\nPlease try Again.")
+                        if (response.statusCode == -1){
+                            builder.setTitle("Error")
+                            builder.setMessage("Something happened.\nPlease try Again.")
+                        }else {
+                            builder.setTitle("Authentication Error")
+                            builder.setMessage("Incorrect Username or Password.\nPlease try Again.")
+                        }
                         val dialog: AlertDialog = builder.create()
                         dialog.show()
 

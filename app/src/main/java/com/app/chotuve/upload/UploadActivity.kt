@@ -19,7 +19,6 @@ import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.util.*

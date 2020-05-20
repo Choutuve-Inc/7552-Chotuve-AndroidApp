@@ -16,14 +16,14 @@ import kotlinx.android.synthetic.main.activity_home_page.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HomePageActivity  : AppCompatActivity() {
+class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoListener {
 
     private val TAG: String = "Home Screen"
     private lateinit var videoFeedAdapter: VideoFeedRecyclerAdapter
+    private var videoItems: ArrayList<ModelVideo> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +61,8 @@ class HomePageActivity  : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@HomePageActivity)
             val topSpacingDecoration = TopSpacingItemDecoration(15)
             addItemDecoration(topSpacingDecoration)
-            videoFeedAdapter = VideoFeedRecyclerAdapter()
+
+            videoFeedAdapter = VideoFeedRecyclerAdapter(this@HomePageActivity)
             adapter = videoFeedAdapter
         }
     }
@@ -92,6 +93,7 @@ class HomePageActivity  : AppCompatActivity() {
         withContext(Main){
             Log.d(TAG, "Add Item Sent.")
             videoFeedAdapter.addItem(video)
+            videoItems.add(video)
             videoFeedAdapter.notifyDataSetChanged()
         }
     }
@@ -99,6 +101,11 @@ class HomePageActivity  : AppCompatActivity() {
 
     private fun toastMessage(message: String) {
         Toast.makeText(this@HomePageActivity, message, Toast.LENGTH_LONG).show()
+    }
+
+    override fun onVideoClick(position: Int) {
+        val selectedVideo = videoItems[position]
+        Log.d(TAG, "Video clicked")//Logic over here.
     }
 
 }

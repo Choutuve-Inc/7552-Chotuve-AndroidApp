@@ -2,18 +2,11 @@ package com.app.chotuve.home
 
 import android.util.Log
 import com.app.chotuve.context.ApplicationContext
-import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
-import com.google.android.gms.tasks.Task
-import com.google.android.gms.tasks.Tasks
-import com.google.android.gms.tasks.Tasks.await
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
 

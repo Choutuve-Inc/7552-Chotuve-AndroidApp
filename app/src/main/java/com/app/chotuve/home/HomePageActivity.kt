@@ -12,6 +12,8 @@ import com.app.chotuve.R
 import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.login.LoginActivity
 import com.app.chotuve.upload.UploadActivity
+import com.app.chotuve.video.VideoActivity
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_home_page.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -81,8 +83,9 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
             val title = item["title"] as String
             val user = item["user"] as String
             val thumbURL: String = item["thumbnail"] as String
+            val vidURL: String = item["url"] as String
             CoroutineScope(IO).launch{
-                val video = VideoDataSource.getVideoFromFirebase(date, title, user, thumbURL)
+                val video = VideoDataSource.getVideoFromFirebase(date, title, user, thumbURL, vidURL)
                 addVideoToRecyclerView(video)
             }
         }
@@ -105,7 +108,23 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
 
     override fun onVideoClick(position: Int) {
         val selectedVideo = videoItems[position]
-        Log.d(TAG, "Video clicked")//Logic over here.
+        val storage = FirebaseStorage.getInstance().reference
+        //WIP: Acá debería yo tener el id del video en el Media server.
+        //Cuando hago click al video, voy a MediaServer a pedirle info, para así poder cargar los comentarios y likes del video.
+        storage.child("videos/").child(selectedVideo.videoID).downloadUrl
+            .addOnSuccessListener {
+                var videoURL = it.toString()
+                val intentToVideo = Intent(this@HomePageActivity, VideoActivity::class.java)
+                intentToVideo.putExtra("videoURL", videoURL)
+                intentToVideo.putExtra("title", selectedVideo.title)
+                intentToVideo.putExtra("username", selectedVideo.username)
+                intentToVideo.putExtra("date", selectedVideo.date)
+                startActivity(intentToVideo)
+                Log.d(TAG, "Success $videoURL.")
+            }.addOnFailureListener {
+                Log.d(TAG, "Error obtaining Video: ${it.message}.")
+            }
+        Log.d(TAG, "Video clicked")
     }
 
 }

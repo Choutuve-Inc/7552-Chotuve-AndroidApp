@@ -40,14 +40,14 @@ class VideoDataSource {
             return jsonList
         }
 
-        suspend fun getVideoFromFirebase(date: String, title:String, user:String, thumbURL: String): ModelVideo  {
+        suspend fun getVideoFromFirebase(date: String, title:String, user:String, thumbID: String, videoURL: String): ModelVideo  {
             val storage = FirebaseStorage.getInstance().reference
-            var video = ModelVideo("title", "usr", "img", "dat")
-            storage.child("thumbnails/").child(thumbURL).downloadUrl
+            var video = ModelVideo("title", "usr", "img", "dat", "vid")
+            storage.child("thumbnails/").child(thumbID).downloadUrl
                 .addOnSuccessListener {
-                    var url = it.toString()
-                    video = ModelVideo(title, user, url, date)
-                    Log.d(TAG, "Success $url.")
+                    var thumbURL = it.toString()
+                    video = ModelVideo(title, user, thumbURL, date, videoURL)
+                    Log.d(TAG, "Success $thumbURL.")
                 }.addOnFailureListener {
                     Log.d(TAG, "Error obtaining Video: ${it.message}.")
                     video.image = ""

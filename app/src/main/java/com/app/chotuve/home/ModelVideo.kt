@@ -4,7 +4,8 @@ data class ModelVideo(
     var title: String,
     var username: String,
     var image: String,
-    var date: String
+    var date: String,
+    var videoID: String
 
 ) {
 

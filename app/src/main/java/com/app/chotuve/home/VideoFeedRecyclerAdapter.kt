@@ -3,6 +3,7 @@ package com.app.chotuve.home
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.app.chotuve.R
 import com.bumptech.glide.Glide
@@ -42,18 +43,18 @@ class VideoFeedRecyclerAdapter(listener: VideoFeedRecyclerAdapter.OnVideoListene
     }
 
     class VideoOnFeedViewHolder constructor(itemView: View, onVideoListener: OnVideoListener) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        val videoThumbnail  = itemView.thumbnail
-        val videoTitle = itemView.video_title
-        val videoUsername = itemView.video_username
-        val videoDate = itemView.video_date
-        var listener: OnVideoListener = onVideoListener
+        private val videoThumbnail  = itemView.thumbnail
+        private val videoTitle = itemView.video_title
+        private val videoUsername = itemView.video_username
+        private val videoDate = itemView.video_date
+        private var listener: OnVideoListener = onVideoListener
 
 
         fun bind(videoPost: ModelVideo, onVideoListener: OnVideoListener){
             itemView.setOnClickListener(this)
-            videoTitle.setText(videoPost.title)
-            videoUsername.setText(videoPost.username)
-            videoDate.setText(videoPost.date)
+            videoTitle.text = videoPost.title
+            videoUsername.text = videoPost.username
+            videoDate.text = videoPost.date
             listener = onVideoListener
 
             val requestOptions = RequestOptions()

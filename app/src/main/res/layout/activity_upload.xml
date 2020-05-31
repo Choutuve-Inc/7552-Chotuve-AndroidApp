@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -11,10 +10,9 @@
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginLeft="40dp"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="10dp"
-        android:text="Cancel"
+        android:text="@string/cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_upload_select_video" />
@@ -25,9 +23,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="40dp"
-        android:layout_marginRight="40dp"
         android:layout_marginBottom="10dp"
-        android:text="Accept"
+        android:text="@string/accept"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_upload_select_video" />
@@ -43,7 +40,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_upload_thumbnail"
-        app:srcCompat="@drawable/video_no_thumbnail" />
+        app:srcCompat="@drawable/video_no_thumbnail"
+        android:contentDescription="@string/video_thumbnail_desc" />
 
     <TextView
         android:id="@+id/txt_upload_title"
@@ -54,7 +52,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="40dp"
         android:layout_marginRight="40dp"
-        android:text="Title"
+        android:text="@string/title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/img_upload_thumbnail" />
@@ -68,7 +66,7 @@
         android:layout_marginEnd="40dp"
         android:layout_marginRight="40dp"
         android:ems="10"
-        android:hint="Video Title"
+        android:hint="@string/video_title"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -84,7 +82,7 @@
         android:layout_marginEnd="40dp"
         android:layout_marginRight="40dp"
         android:ems="10"
-        android:hint="Description"
+        android:hint="@string/description"
         android:inputType="textPersonName"
         android:lineSpacingExtra="8sp"
         android:lines="5"
@@ -101,7 +99,7 @@
         android:layout_width="150dp"
         android:layout_height="60dp"
         android:layout_marginTop="25dp"
-        android:text="Select Video"
+        android:text="@string/select_video"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edi_upload_description" />
@@ -115,7 +113,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginEnd="40dp"
         android:layout_marginRight="40dp"
-        android:text="Description"
+        android:text="@string/description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/edi_upload_title" />
@@ -129,7 +127,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginEnd="40dp"
         android:layout_marginRight="40dp"
-        android:text="Video Thumbnail:"
+        android:text="@string/video_thumbnail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

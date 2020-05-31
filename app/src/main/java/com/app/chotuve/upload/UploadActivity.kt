@@ -64,6 +64,7 @@ class UploadActivity  : AppCompatActivity() {
         btnCancel.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "Cancel Button Clicked")
             val intentCancel = Intent(this@UploadActivity, HomePageActivity::class.java)
+            intentCancel.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intentCancel)
         })
 
@@ -128,9 +129,10 @@ class UploadActivity  : AppCompatActivity() {
                     Log.d(TAG, "Video uploaded successfully")
                     postVideo(filename, filename, ApplicationContext.getConnectedUsername(), videoTitle, dateString, videoDesc, selectedVideoSize.toString(), ApplicationContext.getConnectedToken())
 
-                    val intentToLoginPage = Intent(this@UploadActivity, HomePageActivity::class.java)
+                    val intentToHomePage = Intent(this@UploadActivity, HomePageActivity::class.java)
+                    intentToHomePage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                     buttonEnableController(true)
-                    startActivity(intentToLoginPage)
+                    startActivity(intentToHomePage)
                 } else {
                     Log.d(TAG, "failed to upload: ${task.exception?.message}")
                     buttonEnableController(true)

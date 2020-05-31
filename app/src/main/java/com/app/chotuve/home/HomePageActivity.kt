@@ -45,6 +45,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
                 Log.d(TAG, "Log Out Button Clicked")
                 ApplicationContext.LogUserOut()
                 val intentToLoginPage = Intent(this@HomePageActivity, LoginActivity::class.java)
+                intentToLoginPage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                 toastMessage("Correctly Logged Out")
                 startActivity(intentToLoginPage)
             }

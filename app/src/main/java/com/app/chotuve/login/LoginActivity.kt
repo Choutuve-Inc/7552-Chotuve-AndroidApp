@@ -20,7 +20,7 @@ import com.github.kittinunf.result.Result
 class LoginActivity : AppCompatActivity() {
 
     private val TAG: String = "Login Screen"
-    private val serverURL: String = "https://serene-shelf-10674.herokuapp.com/login"
+    private val serverURL: String = "https://choutuve-app-server.herokuapp.com/login"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

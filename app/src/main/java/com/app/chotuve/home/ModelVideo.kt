@@ -5,7 +5,7 @@ data class ModelVideo(
     var username: String,
     var image: String,
     var date: String,
-    var videoID: String
+    var videoID: Int
 
 ) {
 

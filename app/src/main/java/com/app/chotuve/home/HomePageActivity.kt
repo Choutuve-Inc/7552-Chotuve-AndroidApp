@@ -20,6 +20,8 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
 
 class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoListener {
 
@@ -84,9 +86,9 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
             val title = item["title"] as String
             val user = item["user"] as String
             val thumbURL: String = item["thumbnail"] as String
-            val vidURL: String = item["url"] as String
+            val vidID: Int = item["id"] as Int
             CoroutineScope(IO).launch{
-                val video = VideoDataSource.getVideoFromFirebase(date, title, user, thumbURL, vidURL)
+                val video = VideoDataSource.getVideoFromFirebase(date, title, user, thumbURL, vidID)
                 addVideoToRecyclerView(video)
             }
         }
@@ -108,24 +110,32 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
     }
 
     override fun onVideoClick(position: Int) {
-        val selectedVideo = videoItems[position]
-        val storage = FirebaseStorage.getInstance().reference
-        //WIP: Acá debería yo tener el id del video en el Media server.
-        //Cuando hago click al video, voy a MediaServer a pedirle info, para así poder cargar los comentarios y likes del video.
-        storage.child("videos/").child(selectedVideo.videoID).downloadUrl
-            .addOnSuccessListener {
-                var videoURL = it.toString()
-                val intentToVideo = Intent(this@HomePageActivity, VideoActivity::class.java)
-                intentToVideo.putExtra("videoURL", videoURL)
-                intentToVideo.putExtra("title", selectedVideo.title)
-                intentToVideo.putExtra("username", selectedVideo.username)
-                intentToVideo.putExtra("date", selectedVideo.date)
-                startActivity(intentToVideo)
-                Log.d(TAG, "Success $videoURL.")
-            }.addOnFailureListener {
-                Log.d(TAG, "Error obtaining Video: ${it.message}.")
-            }
-        Log.d(TAG, "Video clicked")
+        CoroutineScope(IO).launch {
+            val selectedVideo = videoItems[position]
+            val storage = FirebaseStorage.getInstance().reference
+            val video = VideoDataSource.getSingleVideoFromHTTP(selectedVideo.videoID)
+
+            //comments y reactions luego se moverán al otro lado.
+            val comments = video["comments"] as JSONArray
+            val reactions = video["reactions"] as JSONObject
+
+            val videoData = video["video_data"] as JSONObject
+            storage.child("videos/").child(videoData["url"] as String).downloadUrl
+                .addOnSuccessListener {
+                    var videoURL = it.toString()
+                    val intentToVideo = Intent(this@HomePageActivity, VideoActivity::class.java)
+                    intentToVideo.putExtra("videoURL", videoURL)
+                    intentToVideo.putExtra("title", selectedVideo.title)
+                    intentToVideo.putExtra("username", selectedVideo.username)
+                    intentToVideo.putExtra("date", selectedVideo.date)
+                    intentToVideo.putExtra("description", videoData["description"] as String)
+                    startActivity(intentToVideo)
+                    Log.d(TAG, "Success $videoURL.")
+                }.addOnFailureListener {
+                    Log.d(TAG, "Error obtaining Video: ${it.message}.")
+                }
+            Log.d(TAG, "Video clicked")
+        }
     }
 
 }

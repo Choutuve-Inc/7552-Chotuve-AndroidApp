@@ -25,7 +25,7 @@ import java.util.*
 class RegisterActivity : AppCompatActivity() {
 
     private val TAG: String = "Sign Up Screen"
-    private val serverURL: String = "https://serene-shelf-10674.herokuapp.com/create"
+    private val serverURL: String = "https://choutuve-app-server.herokuapp.com/create"
     private var selectedPhotoUri: Uri? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

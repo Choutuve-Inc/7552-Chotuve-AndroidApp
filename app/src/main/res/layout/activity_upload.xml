@@ -2,31 +2,20 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <Button
-        android:id="@+id/btn_upload_cancel"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="10dp"
-        android:text="@string/cancel"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_upload_select_video" />
 
     <Button
         android:id="@+id/btn_upload_accept"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="40dp"
         android:layout_marginBottom="10dp"
         android:text="@string/accept"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btn_upload_select_video" />
 
     <ImageView
@@ -98,11 +87,12 @@
         android:id="@+id/btn_upload_select_video"
         android:layout_width="150dp"
         android:layout_height="60dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="20dp"
         android:text="@string/select_video"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edi_upload_description" />
+        app:layout_constraintTop_toBottomOf="@+id/swch_upload_private" />
 
     <TextView
         android:id="@+id/txt_upload_description"
@@ -162,5 +152,14 @@
         app:layout_constraintEnd_toEndOf="@+id/bar_upload_progress_upload"
         app:layout_constraintStart_toStartOf="@+id/bar_upload_progress_upload"
         app:layout_constraintTop_toTopOf="@+id/bar_upload_progress_upload" />
+
+    <Switch
+        android:id="@+id/swch_upload_private"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/video_private"
+        app:layout_constraintStart_toStartOf="@+id/edi_upload_description"
+        app:layout_constraintTop_toBottomOf="@+id/edi_upload_description" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

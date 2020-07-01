@@ -2,10 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/top_home_settings"
-        android:title="Settings"/>
-    <item android:id="@+id/top_home_page_log_out"
-        android:title="Sign Out"/>
     <item android:id="@+id/top_home_upload"
         android:title="Upload"
         app:showAsAction="ifRoom"
@@ -13,7 +9,15 @@
         />
     <item android:id="@+id/top_home_profile"
         android:title="Profile"
-        app:showAsAction="ifRoom"
         android:icon="@drawable/profile"
         />
+    <item android:id="@+id/top_home_chats"
+        android:title="Chats"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/chat"
+        />
+    <item android:id="@+id/top_home_settings"
+        android:title="Settings"/>
+    <item android:id="@+id/top_home_page_log_out"
+        android:title="Sign Out"/>
 </menu>

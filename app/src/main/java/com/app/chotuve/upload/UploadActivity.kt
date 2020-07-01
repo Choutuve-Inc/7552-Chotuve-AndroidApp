@@ -17,6 +17,7 @@ import com.app.chotuve.home.HomePageActivity
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.android.synthetic.main.activity_upload.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
@@ -27,16 +28,16 @@ import java.util.*
 class UploadActivity  : AppCompatActivity() {
     private val TAG: String = "Upload Screen"
     private val MB_SIZE = 1048576.0
-    private val serverURL: String = "https://choutuve-app-server.herokuapp.com/videos"
+    private val serverURL: String = "https://arcane-thicket-79100.herokuapp.com/videos"
     private var selectedVideo: Uri? = null
     private var selectedVideoSize: Double = 0.0
     private var selectedVideoThumbnail: Bitmap? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val btnAccept: Button = findViewById(R.id.btn_upload_accept)
-        val btnCancel: Button = findViewById(R.id.btn_upload_cancel)
         val btnSelectVideo: Button = findViewById(R.id.btn_upload_select_video)
         val progressBar: ProgressBar = findViewById(R.id.bar_upload_progress_upload)
         val txtProgress: TextView = findViewById(R.id.txt_upload_progress)
@@ -61,13 +62,6 @@ class UploadActivity  : AppCompatActivity() {
             }
         })
 
-        btnCancel.setOnClickListener(View.OnClickListener {
-            Log.d(TAG, "Cancel Button Clicked")
-            val intentCancel = Intent(this@UploadActivity, HomePageActivity::class.java)
-            intentCancel.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intentCancel)
-        })
-
         btnSelectVideo.setOnClickListener(View.OnClickListener {
             Log.d(TAG, "Select Video clicked")
             val uploadIntent = Intent(Intent.ACTION_PICK)
@@ -76,7 +70,10 @@ class UploadActivity  : AppCompatActivity() {
         })
     }
 
-
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         val imgThumbnail: ImageView = findViewById(R.id.img_upload_thumbnail)
@@ -126,8 +123,8 @@ class UploadActivity  : AppCompatActivity() {
         refVideos.putFile(selectedVideo!!)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Log.d(TAG, "Video uploaded successfully")
-                    postVideo(filename, filename, ApplicationContext.getConnectedUsername(), videoTitle, dateString, videoDesc, selectedVideoSize.toString(), ApplicationContext.getConnectedToken())
+                    Log.d(TAG, "Video uploaded successfully to firebase")
+                    postVideo(filename, filename, ApplicationContext.getConnectedUsername(), videoTitle, dateString, videoDesc, selectedVideoSize.toString(), ApplicationContext.getConnectedToken(),swch_upload_private.isChecked)
 
                     val intentToHomePage = Intent(this@UploadActivity, HomePageActivity::class.java)
                     intentToHomePage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -160,7 +157,7 @@ class UploadActivity  : AppCompatActivity() {
 
     }
 
-    private fun postVideo(url: String, thumbnail: String, user: String, title: String, date: String, description: String, size: String, token:String) {
+    private fun postVideo(url: String, thumbnail: String, user: String, title: String, date: String, description: String, size: String, token:String, isPrivate: Boolean) {
         var resultCode: Int
         Log.d(TAG, "Size: $size")
         CoroutineScope(IO).launch {
@@ -173,6 +170,7 @@ class UploadActivity  : AppCompatActivity() {
                             " \"date\" : \"$date\", " +
                             " \"url\" : \"$url\", " +
                             " \"thumbnail\" : \"$thumbnail\", " +
+                            " \"private\" : $isPrivate, " +
                             " \"size\" : $size " +
                             "}"
                 )
@@ -187,13 +185,11 @@ class UploadActivity  : AppCompatActivity() {
 
     private fun buttonEnableController(boolean: Boolean){
         val btnAccept: Button = findViewById(R.id.btn_upload_accept)
-        val btnCancel: Button = findViewById(R.id.btn_upload_cancel)
         val btnSelectVideo: Button = findViewById(R.id.btn_upload_select_video)
         val txtTitle: TextView = findViewById(R.id.txt_upload_description)
         val txtDescription: TextView = findViewById(R.id.txt_upload_description)
 
         btnAccept.isEnabled = boolean
-        btnCancel.isEnabled = boolean
         btnSelectVideo.isEnabled = boolean
         txtTitle.isEnabled = boolean
         txtDescription.isEnabled = boolean

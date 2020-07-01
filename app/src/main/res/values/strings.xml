@@ -22,4 +22,10 @@
     <string name="description">Description</string>
     <string name="video_thumbnail">Video Thumbnail:</string>
     <string name="date_published">Date Published</string>
+    <string name="video_private">Private Video:</string>
+    <string name="FriendsActivity">Choose a Friend</string>
+    <string name="UploadActivity">Upload A Video</string>
+    <string name="HomePageActivity">Chotuve Video Feed</string>
+    <string name="RegisterActivity">Create An Account</string>
+    <string name="ChatsActivity">Open Chats</string>
 </resources>

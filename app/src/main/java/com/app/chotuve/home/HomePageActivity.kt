@@ -1,5 +1,6 @@
 package com.app.chotuve.home
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,10 +10,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.chotuve.R
+import com.app.chotuve.chats.ChatsActivity
 import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.login.LoginActivity
 import com.app.chotuve.upload.UploadActivity
 import com.app.chotuve.video.VideoActivity
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.github.kittinunf.result.Result
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_home_page.*
 import kotlinx.coroutines.CoroutineScope
@@ -45,20 +50,49 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
         when (item?.itemId){
             R.id.top_home_page_log_out -> {
                 Log.d(TAG, "Log Out Button Clicked")
-                ApplicationContext.LogUserOut()
-                val intentToLoginPage = Intent(this@HomePageActivity, LoginActivity::class.java)
-                intentToLoginPage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-                toastMessage("Correctly Logged Out")
-                startActivity(intentToLoginPage)
+                logout()
             }
             R.id.top_home_upload -> {
                 Log.d(TAG, "Upload Button Clicked")
                 val intentToUploadPage = Intent(this@HomePageActivity, UploadActivity::class.java)
                 startActivity(intentToUploadPage)
             }
+            R.id.top_home_chats -> {
+                Log.d(TAG, "Chats Button Clicked")
+                val intentToUploadPage = Intent(this@HomePageActivity, ChatsActivity::class.java)
+                startActivity(intentToUploadPage)
+            }
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun logout(){
+        val serverURL = "https://serene-shelf-10674.herokuapp.com/logout"
+        Fuel.post(serverURL)
+            .jsonBody(
+                "{ \"device\" : \"${ApplicationContext.getDeviceID()}\"}"
+            )
+            .response { request, response, result ->
+                when (result){
+                    is Result.Success -> {
+                        ApplicationContext.LogUserOut()
+                        val intentToLoginPage = Intent(this@HomePageActivity, LoginActivity::class.java)
+                        intentToLoginPage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        toastMessage("Correctly Logged Out")
+                        startActivity(intentToLoginPage)
+                    }
+                    is Result.Failure -> {
+                        val builder = AlertDialog.Builder(this@HomePageActivity)
+                        builder.setTitle("Error")
+                        builder.setMessage("Something went terribly wrong.\nPlease try Again.")
+                        val dialog: AlertDialog = builder.create()
+                        dialog.show()
+                    }
+
+                }
+            }
+
     }
 
     private fun initRecycleView(){
@@ -92,7 +126,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
                 addVideoToRecyclerView(video)
             }
         }
-        Log.d(TAG, "Videos got.")
+        Log.d(TAG, "Videos got: ${videos.length()}.")
     }
 
     private suspend fun addVideoToRecyclerView(video:ModelVideo){
@@ -115,12 +149,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
             val storage = FirebaseStorage.getInstance().reference
             val video = VideoDataSource.getSingleVideoFromHTTP(selectedVideo.videoID)
 
-            //comments y reactions luego se moverán al otro lado.
-            val comments = video["comments"] as JSONArray
-            val reactions = video["reactions"] as JSONObject
-
-            val videoData = video["video_data"] as JSONObject
-            storage.child("videos/").child(videoData["url"] as String).downloadUrl
+            storage.child("videos/").child(video["url"] as String).downloadUrl
                 .addOnSuccessListener {
                     var videoURL = it.toString()
                     val intentToVideo = Intent(this@HomePageActivity, VideoActivity::class.java)
@@ -128,7 +157,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
                     intentToVideo.putExtra("title", selectedVideo.title)
                     intentToVideo.putExtra("username", selectedVideo.username)
                     intentToVideo.putExtra("date", selectedVideo.date)
-                    intentToVideo.putExtra("description", videoData["description"] as String)
+                    intentToVideo.putExtra("description", video["description"] as String)
                     startActivity(intentToVideo)
                     Log.d(TAG, "Success $videoURL.")
                 }.addOnFailureListener {

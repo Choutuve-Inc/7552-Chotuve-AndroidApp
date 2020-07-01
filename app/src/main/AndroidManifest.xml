@@ -3,7 +3,7 @@
     package="com.app.chotuve">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -15,17 +15,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".video.VideoActivity"></activity>
         <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".register.RegisterActivity" />
-        <activity android:name=".home.HomePageActivity" />
-        <activity android:name=".upload.UploadActivity" />
+        <activity android:name=".home.HomePageActivity"
+            android:label="@string/HomePageActivity">
+        </activity>
+        <activity android:name=".register.RegisterActivity"
+            android:label="@string/RegisterActivity"/>
+        <activity android:name=".upload.UploadActivity"
+            android:label="@string/UploadActivity"/>
+        <activity android:name=".friendlist.FriendsActivity"
+            android:label="@string/FriendsActivity"/>
+        <activity android:name=".chats.ChatsActivity"
+            android:label="@string/ChatsActivity"/>
+        <activity android:name=".video.VideoActivity"/>
     </application>
 
 </manifest>

@@ -14,17 +14,26 @@ import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.register.RegisterActivity
 import com.app.chotuve.home.HomePageActivity
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.github.kittinunf.fuel.httpPost
+import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
+import com.google.firebase.iid.FirebaseInstanceId
+import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
 
     private val TAG: String = "Login Screen"
-    private val serverURL: String = "https://choutuve-app-server.herokuapp.com/login"
+    private val serverURL: String = "https://serene-shelf-10674.herokuapp.com/login"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        val uid = ApplicationContext.getDeviceID()
+        Log.d(TAG, "FirebaseInstance: ${uid}") //doaT2eFiDvA
+        if (uid != null) alreadyLoggedUser(uid)
 
         val btnSignIn: Button = findViewById(R.id.btn_login_login)
         val btnRegister: Button = findViewById(R.id.btn_login_register)
@@ -54,30 +63,24 @@ class LoginActivity : AppCompatActivity() {
 
     private fun loginRequest(email: String, password: String) {
         val tipo: String = "mailPass"
+        val deviceId = ApplicationContext.getDeviceID()
+        Log.d(TAG,"device: $deviceId")
         Fuel.post(serverURL)
             .jsonBody(
                 "{ \"email\" : \"$email\"," +
                         " \"password\" : \"$password\", " +
+                        "\"device\" : \"$deviceId\"," +
                         " \"tipo\" : \"$tipo\" " +
                         "}"
             )
             .response { request, response, result ->
-
                 when (result) {
                     is Result.Success -> {
-                        response.statusCode
-                        var body = response.body()
-
-                        Log.d(TAG, "Successful Login: ${response.statusCode}")
-                        val token = body.asString("application/json")
-                        ApplicationContext.setConnectedUser(email, token.substring(1, token.length-1))
-
-                        val intentToHomePage =
-                            Intent(this@LoginActivity, HomePageActivity::class.java)
-                        toastMessage("Login Successful")
-                        startActivity(intentToHomePage)
+                        Log.d(TAG, "Successful Login")
+                        correctLogin(response)
                     }
                     is Result.Failure -> {
+                        Log.d(TAG, "${result.error.message}")
 
                         val builder = AlertDialog.Builder(this@LoginActivity)
                         if (response.statusCode == -1){
@@ -94,5 +97,40 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
+    }
+
+    private fun alreadyLoggedUser(uid: String) {
+        Log.d(TAG, "Estoy?: ${uid}") //doaT2eFiDvA
+        Fuel.post(serverURL)
+            .jsonBody(
+                "{ \"device\" : \"${uid}\"}"
+            )
+            .response { request, response, result ->
+                when (result) {
+                    is Result.Success -> {
+                        Log.d(TAG, "alreadyLoggedUser: Connected user in device.")
+                        correctLogin(response)
+                    }
+                    is Result.Failure -> {
+                        //Look up code and choose what to do.
+                        Log.d(TAG, "alreadyLoggedUser: No connected user in device.")
+                        Log.d(TAG, "${result.error.message}")
+                    }
+                }
+            }
+    }
+
+    private fun correctLogin(response: Response){
+        val body = response.body()
+        val json = JSONObject(body.asString("application/json"))
+        val token = json["token"] as String
+        val userID = json["uid"] as String
+        ApplicationContext.setConnectedUser(userID, token)
+        Log.d(TAG, "This is the token: $token.")
+        Log.d(TAG, "This is the userID: $userID.")
+
+        val intentToHomePage = Intent(this@LoginActivity, HomePageActivity::class.java)
+        toastMessage("Login Successful")
+        startActivity(intentToHomePage)
     }
 }

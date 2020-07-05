@@ -3,6 +3,9 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.google.gms.google-services'
 
+androidExtensions {
+    experimental = true
+}
 
 android {
     compileSdkVersion 29
@@ -69,4 +72,10 @@ dependencies {
 
     //circleView
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    //groupie
+    implementation "com.xwray:groupie:2.8.0"
+
+    //picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }

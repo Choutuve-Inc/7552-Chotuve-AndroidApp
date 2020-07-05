@@ -15,24 +15,47 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".chat.ChatActivity"
+            android:label="@string/ChatActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".openchats.OpenChatsActivity" />
+        </activity>
         <activity android:name=".login.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".home.HomePageActivity"
-            android:label="@string/HomePageActivity">
+        <activity
+            android:name=".home.HomePageActivity"
+            android:label="@string/HomePageActivity"></activity>
+        <activity
+            android:name=".register.RegisterActivity"
+            android:label="@string/RegisterActivity" />
+        <activity
+            android:name=".upload.UploadActivity"
+            android:label="@string/UploadActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".home.HomePageActivity" />
         </activity>
-        <activity android:name=".register.RegisterActivity"
-            android:label="@string/RegisterActivity"/>
-        <activity android:name=".upload.UploadActivity"
-            android:label="@string/UploadActivity"/>
-        <activity android:name=".friendlist.FriendsActivity"
-            android:label="@string/FriendsActivity"/>
-        <activity android:name=".chats.ChatsActivity"
-            android:label="@string/ChatsActivity"/>
-        <activity android:name=".video.VideoActivity"/>
+        <activity
+            android:name=".friendlist.FriendsActivity"
+            android:label="@string/FriendsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".openchats.OpenChatsActivity" />
+        </activity>
+        <activity
+            android:name=".openchats.OpenChatsActivity"
+            android:label="@string/ChatsActivity" />
+        <activity android:name=".video.VideoActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".home.HomePageActivity" />
+        </activity>
     </application>
 
 </manifest>

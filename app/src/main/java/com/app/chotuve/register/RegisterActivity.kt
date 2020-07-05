@@ -14,12 +14,15 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.chotuve.R
+import com.app.chotuve.home.ModelVideo
+import com.app.chotuve.home.VideoDataSource
 import com.app.chotuve.login.LoginActivity
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.result.Result
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_register.*
+import kotlinx.coroutines.tasks.await
 import java.util.*
 
 class RegisterActivity : AppCompatActivity() {
@@ -90,50 +93,59 @@ class RegisterActivity : AppCompatActivity() {
                     val password = txt_register_password.text
                     val phone = txt_register_phone.text
                     val tipo = "mailPass"
-                    Fuel.post(serverURL)
-                        .jsonBody(
-                            "{ \"email\" : \"$email\"," +
-                                    " \"phone\" : \"$phone\"," +
-                                    " \"username\" : \"$user\", " +
-                                    " \"password\" : \"$password\", " +
-                                    " \"tipo\" : \"$tipo\", " +
-                                    " \"image\" : \"$filename\" " +
-                                    "}"
-                        )
-                        .response { request, response, result ->
+                    ref.downloadUrl
+                        .addOnSuccessListener {
+                            var url = it.toString()
 
-                            when (result) {
-                                is Result.Success -> {
-                                    Log.d(TAG, "Account Created")
-                                    setButtonEnable(true)
-                                    val intentToLoginPage = Intent(this@RegisterActivity, LoginActivity::class.java)
-                                    intentToLoginPage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                    toastMessage("Account Created")
-                                    startActivity(intentToLoginPage)
-                                }
-                                is Result.Failure -> {
+                            Fuel.post(serverURL)
+                                .jsonBody(
+                                    "{ \"email\" : \"$email\"," +
+                                            " \"phone\" : \"$phone\"," +
+                                            " \"username\" : \"$user\", " +
+                                            " \"password\" : \"$password\", " +
+                                            " \"tipo\" : \"$tipo\", " +
+                                            " \"image\" : \"${url}\" " +
+                                            "}"
+                                )
+                                .response { request, response, result ->
+                                    Log.d(TAG, request.toString())
 
-                                    val builder = AlertDialog.Builder(this@RegisterActivity)
-                                    if (response.statusCode == -1){
-                                        builder.setTitle("Error")
-                                        builder.setMessage("Something happened.\nPlease try Again.")
-                                    }else {
-                                        builder.setTitle("Credentials Error")
-                                        builder.setMessage("${result.error.message}.")
+                                    when (result) {
+                                        is Result.Success -> {
+                                            Log.d(TAG, "Account Created")
+                                            setButtonEnable(true)
+                                            val intentToLoginPage = Intent(this@RegisterActivity, LoginActivity::class.java)
+                                            intentToLoginPage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            toastMessage("Account Created")
+                                            startActivity(intentToLoginPage)
+                                        }
+                                        is Result.Failure -> {
+
+                                            val builder = AlertDialog.Builder(this@RegisterActivity)
+                                            if (response.statusCode == -1){
+                                                builder.setTitle("Error")
+                                                builder.setMessage("Something happened.\nPlease try Again.")
+                                            }else {
+                                                builder.setTitle("Credentials Error")
+                                                builder.setMessage("${result.error.message}.")
+                                            }
+                                            val dialog: AlertDialog = builder.create()
+                                            dialog.show()
+
+                                            Log.d(TAG, "Unsuccessful login: ${response.statusCode}")
+                                            setButtonEnable(true)
+                                        }
                                     }
-                                    val dialog: AlertDialog = builder.create()
-                                    dialog.show()
-
-                                    Log.d(TAG, "Unsuccessful login: ${response.statusCode}")
-                                    setButtonEnable(true)
                                 }
-                            }
+
+                            Log.d(TAG, "Success: $url.")
+                        }.addOnFailureListener {
+                            Log.d(TAG, "Error obtaining userPic: ${it.message}.")
                         }
                 }.addOnFailureListener{
                     Log.d(TAG, "Error uploading image to Firebase: ${it.message}")
                     setButtonEnable(true)
                 }
-
         }
     }
 

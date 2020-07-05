@@ -6,4 +6,9 @@
         app:showAsAction="ifRoom"
         android:icon="@drawable/plus"
         />
+    <item android:id="@+id/top_chats_videos"
+        android:title="Video Feed"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/video"
+        />
 </menu>

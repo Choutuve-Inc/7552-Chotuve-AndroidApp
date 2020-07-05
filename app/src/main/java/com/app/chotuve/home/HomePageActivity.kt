@@ -10,10 +10,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.chotuve.R
-import com.app.chotuve.chats.ChatsActivity
+import com.app.chotuve.openchats.OpenChatsActivity
 import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.login.LoginActivity
 import com.app.chotuve.upload.UploadActivity
+import com.app.chotuve.utils.TopSpacingItemDecoration
 import com.app.chotuve.video.VideoActivity
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
@@ -25,8 +26,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONObject
 
 class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoListener {
 
@@ -59,7 +58,8 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
             }
             R.id.top_home_chats -> {
                 Log.d(TAG, "Chats Button Clicked")
-                val intentToUploadPage = Intent(this@HomePageActivity, ChatsActivity::class.java)
+                val intentToUploadPage = Intent(this@HomePageActivity, OpenChatsActivity::class.java)
+                intentToUploadPage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intentToUploadPage)
             }
         }
@@ -98,7 +98,8 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
     private fun initRecycleView(){
         rec_home_feed.apply {
             layoutManager = LinearLayoutManager(this@HomePageActivity)
-            val topSpacingDecoration = TopSpacingItemDecoration(15)
+            val topSpacingDecoration =
+                TopSpacingItemDecoration(15)
             addItemDecoration(topSpacingDecoration)
 
             videoFeedAdapter = VideoFeedRecyclerAdapter(this@HomePageActivity)

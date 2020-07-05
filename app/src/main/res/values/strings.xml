@@ -28,4 +28,7 @@
     <string name="HomePageActivity">Chotuve Video Feed</string>
     <string name="RegisterActivity">Create An Account</string>
     <string name="ChatsActivity">Open Chats</string>
+    <string name="ChatActivity">Chatube</string>
+    <string name="enter_message">Enter Message</string>
+    <string name="send">Send</string>
 </resources>

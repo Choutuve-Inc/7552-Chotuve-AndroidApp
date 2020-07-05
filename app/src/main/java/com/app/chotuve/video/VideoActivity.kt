@@ -25,7 +25,6 @@ class VideoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_video)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         rtStreamUrl = intent.getStringExtra("videoURL")
         txt_video_title.text = intent.getStringExtra("title")
@@ -63,11 +62,6 @@ class VideoActivity : AppCompatActivity() {
                 bar_video_progress.visibility = View.INVISIBLE
             true
         }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
     }
 
     override fun onStart() {

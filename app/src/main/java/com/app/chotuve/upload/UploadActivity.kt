@@ -35,7 +35,6 @@ class UploadActivity  : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val btnAccept: Button = findViewById(R.id.btn_upload_accept)
         val btnSelectVideo: Button = findViewById(R.id.btn_upload_select_video)
@@ -68,11 +67,6 @@ class UploadActivity  : AppCompatActivity() {
             uploadIntent.type = "video/*"
             startActivityForResult(uploadIntent, 0)
         })
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
     }
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".friendlist.FriendsActivity">
+    tools:context=".openchats.OpenChatsActivity">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rec_friends_list"
+        android:id="@+id/rec_open_chats"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

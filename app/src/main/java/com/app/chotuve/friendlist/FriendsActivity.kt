@@ -33,7 +33,7 @@ class FriendsActivity : AppCompatActivity() {
 
             val friendItem = item as ModelFriend
 
-            val intent = Intent(view.context, ChatActivity::class.java)
+            val intent = Intent(this@FriendsActivity, ChatActivity::class.java)
             intent.putExtra(FRIEND_KEY, friendItem.friend)
             startActivity(intent)
 
@@ -61,7 +61,7 @@ class FriendsActivity : AppCompatActivity() {
             val imageID = item["photoURL"] as String //photoURL
             CoroutineScope(Dispatchers.IO).launch{
                 val friend = getFriendFromFirebase(username, userID, imageID)
-                addVideoToRecyclerView(friend)
+                addVideoToRecyclerView(ModelFriend(friend))
             }
         }
         Log.d(TAG, "Videos got: ${friends.length()}.")

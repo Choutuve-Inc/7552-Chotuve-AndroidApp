@@ -29,6 +29,7 @@ class UploadActivity  : AppCompatActivity() {
     private val TAG: String = "Upload Screen"
     private val MB_SIZE = 1048576.0
     private val serverURL: String = "https://arcane-thicket-79100.herokuapp.com/videos"
+    //TODO private val serverURL: String = "https://choutuve-app-server.herokuapp.com/videos"
     private var selectedVideo: Uri? = null
     private var selectedVideoSize: Double = 0.0
     private var selectedVideoThumbnail: Bitmap? = null

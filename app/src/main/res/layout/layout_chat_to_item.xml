@@ -11,31 +11,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="4dp"
-        android:orientation="horizontal"
-        android:gravity="right">
+        android:orientation="horizontal">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_chat_user"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/video_no_thumbnail"
+            app:civ_border_width="1dp" />
 
         <TextView
             android:id="@+id/lbl_chat_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/chat_to_item"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/chat_from_item"
             android:fontFamily="monospace"
-            android:gravity=""
             android:maxWidth="240dp"
             android:padding="12dp"
             android:text="Text"
-            android:textColor="@android:color/black" />
-
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/img_chat_user"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="4dp"
-            android:src="@drawable/video_no_thumbnail"
-            app:civ_border_width="1dp"/>
-
-
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

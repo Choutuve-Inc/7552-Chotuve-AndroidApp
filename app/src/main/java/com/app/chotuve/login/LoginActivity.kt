@@ -1,6 +1,10 @@
 package com.app.chotuve.login
 
 import android.app.AlertDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -26,11 +30,13 @@ class LoginActivity : AppCompatActivity() {
 
     private val TAG: String = "Login Screen"
     private val serverURL: String = "https://serene-shelf-10674.herokuapp.com/login"
+    //TODO private val serverURL: String = "https://choutuve-app-server.herokuapp.com/login"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        FirebaseInstanceId.getInstance().id //Setup en caso de 1er uso de la app.
         val uid = ApplicationContext.getDeviceID()
         Log.d(TAG, "FirebaseInstance: ${uid}") //doaT2eFiDvA
         if (uid != null) alreadyLoggedUser(uid)
@@ -54,6 +60,8 @@ class LoginActivity : AppCompatActivity() {
             val intentToRegister = Intent(this@LoginActivity, RegisterActivity::class.java)
             startActivity(intentToRegister)
         })
+
+
 
     }
 
@@ -100,7 +108,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun alreadyLoggedUser(uid: String) {
-        Log.d(TAG, "Estoy?: ${uid}") //doaT2eFiDvA
+        Log.d(TAG, "Estoy?: ${uid}")
         Fuel.post(serverURL)
             .jsonBody(
                 "{ \"device\" : \"${uid}\"}"
@@ -133,4 +141,5 @@ class LoginActivity : AppCompatActivity() {
         toastMessage("Login Successful")
         startActivity(intentToHomePage)
     }
+
 }

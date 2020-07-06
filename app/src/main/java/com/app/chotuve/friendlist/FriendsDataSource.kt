@@ -11,6 +11,7 @@ import com.github.kittinunf.result.Result
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import org.json.JSONArray
+import org.json.JSONObject
 
 class FriendsDataSource {
     companion object {
@@ -29,24 +30,48 @@ class FriendsDataSource {
                 .responseJson()
             when (result) {
                 is Result.Success -> {
-                    Log.d(TAG, "HTTP Success")
+                    Log.d(TAG, "HTTP Success [getUsersFromHTTP]")
                     val body = response.body()
                     return JSONArray(body.asString("application/json"))
+                }
+                is Result.Failure -> {
+                    //Look up code and choose what to do.
+                    Log.d(TAG, "Error obtaining Users.")
+                }
+            }
+            return jsonList
+        }
+
+        fun getSingleUserFromHTTP(userID: String): JSONObject {
+            val json = JSONObject()
+            val singleVideoURL = "$serverURL/$userID"
+            val (request, response, result) = singleVideoURL.httpGet()
+                .jsonBody(
+                    "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
+                            " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +
+                            "}"
+                )
+                .responseJson()
+            when (result) {
+                is Result.Success -> {
+                    Log.d(TAG, "HTTP Success [getSingleUserFromHTTP]")
+                    val body = response.body()
+                    return JSONObject(body.asString("application/json"))
                 }
                 is Result.Failure -> {
                     //Look up code and choose what to do.
                     Log.d(TAG, "Error obtaining Videos.")
                 }
             }
-            return jsonList
+            return json
         }
 
-        suspend fun getFriendFromFirebase(username: String, userID: String, imageID: String): ModelFriend {
+        fun getFriendFromFirebase(username: String, userID: String, imageID: String): Friend {
             var img = imageID
             if (img == null){
                 img = DEF_IMAGE
             }
-            return ModelFriend(Friend(username, img, userID))
+            return Friend(username, img, userID)
         }
     }
 }

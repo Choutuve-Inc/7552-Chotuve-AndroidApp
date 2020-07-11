@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/top_chats_friends"
+        android:title="New Chat"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/plus"
+        />
+    <item android:id="@+id/top_chats_videos"
+        android:title="Video Feed"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/video"
+        />
+</menu>

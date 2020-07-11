@@ -1,4 +1,4 @@
-package com.app.chotuve.home
+package com.app.chotuve.utils
 
 import android.graphics.Rect
 import android.view.View

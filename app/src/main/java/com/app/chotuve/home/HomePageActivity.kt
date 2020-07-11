@@ -159,6 +159,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
                     intentToVideo.putExtra("username", selectedVideo.username)
                     intentToVideo.putExtra("date", selectedVideo.date)
                     intentToVideo.putExtra("description", video["description"] as String)
+                    intentToVideo.putExtra("videoID", selectedVideo.videoID)
                     startActivity(intentToVideo)
                     Log.d(TAG, "Success $videoURL.")
                 }.addOnFailureListener {

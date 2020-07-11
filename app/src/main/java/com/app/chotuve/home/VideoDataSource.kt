@@ -4,6 +4,7 @@ import android.util.Log
 import com.app.chotuve.context.ApplicationContext
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.google.firebase.storage.FirebaseStorage
@@ -16,15 +17,17 @@ class VideoDataSource {
 
     companion object {
         private const val TAG: String = "Video Data Source"
-        private const val serverURL: String = "https://arcane-thicket-79100.herokuapp.com/videos"
         //TODO private const val serverURL: String = "https://arcane-thicket-79100.herokuapp.com/videos"
+        private const val serverURL: String = "https://choutuve-app-server.herokuapp.com/videos"
 
         fun getVideosFromHTTP(): JSONArray {
             val jsonList = JSONArray()
-            val (request, response, result) = serverURL.httpGet()
+            val user = "${ApplicationContext.getConnectedUsername()}"
+            val (request, response, result) = "https://choutuve-app-server.herokuapp.com/feed".httpPost()
                 .jsonBody(
-                    "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
-                            " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +
+                    "{" +
+                            " \"user\": \"$user\", " +
+                            " \"token\": \"${ApplicationContext.getConnectedToken()}\"" +
                             "}"
                 )
                 .responseJson()
@@ -32,11 +35,14 @@ class VideoDataSource {
                 is Result.Success -> {
                     Log.d(TAG, "HTTP Success [getVideosFromHTTP]")
                     val body = response.body()
+                    Log.d(TAG, "Reqest: $request")
                     return JSONArray(body.asString("application/json"))
                 }
                 is Result.Failure -> {
                     //Look up code and choose what to do.
+                    Log.d(TAG, "Reqest: $request")
                     Log.d(TAG, "Error obtaining Videos.")
+                    Log.d(TAG, "Error: ${result.error.cause}")
                 }
             }
             return jsonList

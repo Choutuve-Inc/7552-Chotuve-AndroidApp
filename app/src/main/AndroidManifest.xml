@@ -50,6 +50,7 @@
         </activity>
         <activity
             android:name=".openchats.OpenChatsActivity"
+            android:windowSoftInputMode="adjustPan"
             android:label="@string/ChatsActivity" />
         <activity android:name=".video.VideoActivity">
             <meta-data

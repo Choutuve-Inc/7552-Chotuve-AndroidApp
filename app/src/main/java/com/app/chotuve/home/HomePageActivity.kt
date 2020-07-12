@@ -14,6 +14,7 @@ import com.app.chotuve.openchats.OpenChatsActivity
 import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.login.LoginActivity
 import com.app.chotuve.upload.UploadActivity
+import com.app.chotuve.utils.JSONArraySorter
 import com.app.chotuve.utils.TopSpacingItemDecoration
 import com.app.chotuve.video.VideoActivity
 import com.github.kittinunf.fuel.Fuel
@@ -22,6 +23,7 @@ import com.github.kittinunf.result.Result
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_home_page.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -114,7 +116,8 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
     }
 
     private suspend fun getData() {
-        val videos = VideoDataSource.getVideosFromHTTP()
+        var videos = VideoDataSource.getVideosFromHTTP()
+        videos = JSONArraySorter.sortJSONArrayByFirstLevelIntField(videos, "id")
         for (i in 0 until videos.length()) {
             val item = videos.getJSONObject(i)
             val date = item["date"] as String
@@ -122,6 +125,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
             val user = item["user"] as String
             val thumbURL: String = item["thumbnail"] as String
             val vidID: Int = item["id"] as Int
+            Thread.sleep(10) //Needed for correct order on the video feed list
             CoroutineScope(IO).launch{
                 val video = VideoDataSource.getVideoFromFirebase(date, title, user, thumbURL, vidID)
                 addVideoToRecyclerView(video)

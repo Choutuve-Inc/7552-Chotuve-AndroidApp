@@ -127,7 +127,6 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
 
     private suspend fun getData() {
         var videos = VideoDataSource.getVideosFromHTTP()
-        videos = JSONArraySorter.sortJSONArrayByFirstLevelIntField(videos, "id")
         for (i in 0 until videos.length()) {
             val item = videos.getJSONObject(i)
             val date = item["date"] as String

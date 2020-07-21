@@ -157,6 +157,8 @@ class UploadActivity  : AppCompatActivity() {
         Log.d(TAG, "Size: $size")
         CoroutineScope(IO).launch {
             val (request, response, result) = Fuel.post(serverURL)
+                .appendHeader("user", ApplicationContext.getConnectedUsername())
+                .appendHeader("token", ApplicationContext.getConnectedToken())
                 .jsonBody(
                     "{ \"user\" : \"$user\"," +
                             " \"token\" : \"$token\", " +

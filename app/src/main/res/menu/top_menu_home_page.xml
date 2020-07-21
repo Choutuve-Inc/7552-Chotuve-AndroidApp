@@ -7,17 +7,15 @@
         app:showAsAction="ifRoom"
         android:icon="@drawable/plus"
         />
-    <item android:id="@+id/top_home_profile"
-        android:title="Profile"
-        android:icon="@drawable/profile"
-        />
     <item android:id="@+id/top_home_chats"
         android:title="Chats"
         app:showAsAction="ifRoom"
         android:icon="@drawable/chat"
         />
-    <item android:id="@+id/top_home_settings"
-        android:title="Settings"/>
+    <item android:id="@+id/top_home_profile"
+        android:title="Profile"
+        android:icon="@drawable/profile"
+        />
     <item android:id="@+id/top_home_page_log_out"
         android:title="Sign Out"/>
 </menu>

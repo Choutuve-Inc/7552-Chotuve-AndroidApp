@@ -11,4 +11,10 @@
         app:showAsAction="ifRoom"
         android:icon="@drawable/video"
         />
+    <item android:id="@+id/top_chats_profile"
+        android:title="Profile"
+        android:icon="@drawable/profile"
+        />
+    <item android:id="@+id/top_chats_log_out"
+        android:title="Sign Out"/>
 </menu>

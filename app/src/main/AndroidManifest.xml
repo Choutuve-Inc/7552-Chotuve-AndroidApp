@@ -15,11 +15,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".chat.ChatActivity"
+        <activity android:name=".profile.ProfileActivity"
+            android:label="@string/ProfileActivity">
+        </activity>
+        <activity
+            android:name=".chat.ChatActivity"
             android:label="@string/ChatActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".openchats.OpenChatsActivity" />
+                android:value=".openchats.OpenChatsActivity">
+            </meta-data>
         </activity>
         <activity android:name=".login.LoginActivity">
             <intent-filter>
@@ -30,7 +35,7 @@
         </activity>
         <activity
             android:name=".home.HomePageActivity"
-            android:label="@string/HomePageActivity"></activity>
+            android:label="@string/HomePageActivity" />
         <activity
             android:name=".register.RegisterActivity"
             android:label="@string/RegisterActivity" />
@@ -50,18 +55,19 @@
         </activity>
         <activity
             android:name=".openchats.OpenChatsActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:label="@string/ChatsActivity" />
+            android:label="@string/ChatsActivity"
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".video.VideoActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".home.HomePageActivity" />
         </activity>
 
-        <service android:name=".utils.FCMReceiver"
+        <service
+            android:name=".utils.FCMReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
     </application>

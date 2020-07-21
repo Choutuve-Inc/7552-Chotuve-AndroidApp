@@ -12,13 +12,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.chotuve.R
 import com.app.chotuve.openchats.OpenChatsActivity
 import com.app.chotuve.context.ApplicationContext
+import com.app.chotuve.friendlist.FriendsDataSource
 import com.app.chotuve.login.LoginActivity
+import com.app.chotuve.profile.ProfileActivity
 import com.app.chotuve.upload.UploadActivity
 import com.app.chotuve.utils.JSONArraySorter
 import com.app.chotuve.utils.TopSpacingItemDecoration
 import com.app.chotuve.video.VideoActivity
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_home_page.*
@@ -28,6 +32,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoListener {
 
@@ -63,6 +68,11 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
                 val intentToUploadPage = Intent(this@HomePageActivity, OpenChatsActivity::class.java)
                 intentToUploadPage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intentToUploadPage)
+            }
+            R.id.top_home_profile -> {
+                Log.d(TAG, "Profile Button Clicked")
+                val intentToProfilePage = Intent(this@HomePageActivity, ProfileActivity::class.java)
+                startActivity(intentToProfilePage)
             }
         }
 
@@ -122,16 +132,43 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
             val item = videos.getJSONObject(i)
             val date = item["date"] as String
             val title = item["title"] as String
-            val user = item["user"] as String
+            val userID = item["user"] as String
             val thumbURL: String = item["thumbnail"] as String
             val vidID: Int = item["id"] as Int
             Thread.sleep(10) //Needed for correct order on the video feed list
             CoroutineScope(IO).launch{
-                val video = VideoDataSource.getVideoFromFirebase(date, title, user, thumbURL, vidID)
+                val username = getUsernameFromHTTP(userID)
+                val video = VideoDataSource.getVideoFromFirebase(date, title, username, thumbURL, vidID)
                 addVideoToRecyclerView(video)
             }
         }
         Log.d(TAG, "Videos got: ${videos.length()}.")
+    }
+
+    private fun getUsernameFromHTTP(userID: String): String {
+        val serverURL = "https://serene-shelf-10674.herokuapp.com/users/${userID}"
+        val (request, response, result) = serverURL.httpGet()
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
+            .jsonBody(
+                "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
+                        " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +
+                        "}"
+            )
+            .responseJson()
+        when (result) {
+            is Result.Success -> {
+                Log.d(TAG, "HTTP Success [getUsernameFromHTTP]")
+                val body = response.body()
+                val json = JSONObject(body.asString("application/json"))
+                return json.getString("displayName")
+            }
+            is Result.Failure -> {
+                //Look up code and choose what to do.
+                Log.d(TAG, "Error obtaining User by id ${userID}.")
+                return userID
+            }
+        }
     }
 
     private suspend fun addVideoToRecyclerView(video:ModelVideo){

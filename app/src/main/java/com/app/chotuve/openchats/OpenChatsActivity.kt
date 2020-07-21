@@ -1,5 +1,6 @@
 package com.app.chotuve.openchats
 
+import android.app.AlertDialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -15,7 +16,12 @@ import com.app.chotuve.friendlist.Friend
 import com.app.chotuve.friendlist.FriendsActivity
 import com.app.chotuve.friendlist.ModelFriend
 import com.app.chotuve.home.HomePageActivity
+import com.app.chotuve.login.LoginActivity
+import com.app.chotuve.profile.ProfileActivity
 import com.app.chotuve.utils.TopSpacingItemDecoration
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.github.kittinunf.result.Result
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -52,6 +58,61 @@ class OpenChatsActivity : AppCompatActivity() {
         }
 
         listenForChats()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item?.itemId){
+            R.id.top_home_page_log_out -> {
+                Log.d(TAG, "Log Out Button Clicked")
+                logout()
+            }
+            R.id.top_chats_friends -> {
+                Log.d(TAG, "New Chat Button Clicked")
+                val intentToLoginPage = Intent(this@OpenChatsActivity, FriendsActivity::class.java)
+                startActivity(intentToLoginPage)
+            }
+            R.id.top_chats_videos -> {
+                Log.d(TAG, "Video Feed Button Clicked")
+                val intentToHomePage = Intent(this@OpenChatsActivity, HomePageActivity::class.java)
+                intentToHomePage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intentToHomePage)
+            }
+            R.id.top_chats_profile -> {
+                Log.d(TAG, "Profile Button Clicked")
+                val intentToProfilePage = Intent(this@OpenChatsActivity, ProfileActivity::class.java)
+                startActivity(intentToProfilePage)
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun logout(){
+        val serverURL = "https://serene-shelf-10674.herokuapp.com/logout"
+        Fuel.post(serverURL)
+            .jsonBody(
+                "{ \"device\" : \"${ApplicationContext.getDeviceID()}\"}"
+            )
+            .response { request, response, result ->
+                when (result){
+                    is Result.Success -> {
+                        ApplicationContext.LogUserOut()
+                        val intentToLoginPage = Intent(this@OpenChatsActivity, LoginActivity::class.java)
+                        intentToLoginPage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        toastMessage("Correctly Logged Out")
+                        startActivity(intentToLoginPage)
+                    }
+                    is Result.Failure -> {
+                        val builder = AlertDialog.Builder(this@OpenChatsActivity)
+                        builder.setTitle("Error")
+                        builder.setMessage("Something went terribly wrong.\nPlease try Again.")
+                        val dialog: AlertDialog = builder.create()
+                        dialog.show()
+                    }
+
+                }
+            }
+
     }
 
     private fun refreshRecView() {
@@ -98,24 +159,6 @@ class OpenChatsActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.top_menu_open_chats_page, menu)
         return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item?.itemId){
-            R.id.top_chats_friends -> {
-                Log.d(TAG, "New Chat Button Clicked")
-                val intentToLoginPage = Intent(this@OpenChatsActivity, FriendsActivity::class.java)
-                startActivity(intentToLoginPage)
-            }
-            R.id.top_chats_videos -> {
-                Log.d(TAG, "Video Feed Button Clicked")
-                val intentToHomePage = Intent(this@OpenChatsActivity, HomePageActivity::class.java)
-                intentToHomePage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intentToHomePage)
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
     }
 
     override fun onSupportNavigateUp(): Boolean {

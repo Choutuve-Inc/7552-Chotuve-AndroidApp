@@ -22,6 +22,8 @@ class FriendsDataSource {
         fun getUsersFromHTTP(): JSONArray{
             val jsonList = JSONArray()
             val (request, response, result) = serverURL.httpGet()
+                .appendHeader("user", ApplicationContext.getConnectedUsername())
+                .appendHeader("token", ApplicationContext.getConnectedToken())
                 .jsonBody(
                     "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
                             " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +
@@ -46,6 +48,8 @@ class FriendsDataSource {
             val json = JSONObject()
             val singleVideoURL = "$serverURL/$userID"
             val (request, response, result) = singleVideoURL.httpGet()
+                .appendHeader("user", ApplicationContext.getConnectedUsername())
+                .appendHeader("token", ApplicationContext.getConnectedToken())
                 .jsonBody(
                     "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
                             " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +
@@ -60,7 +64,7 @@ class FriendsDataSource {
                 }
                 is Result.Failure -> {
                     //Look up code and choose what to do.
-                    Log.d(TAG, "Error obtaining Videos.")
+                    Log.d(TAG, "Error obtaining Friend by id ${userID}.")
                 }
             }
             return json

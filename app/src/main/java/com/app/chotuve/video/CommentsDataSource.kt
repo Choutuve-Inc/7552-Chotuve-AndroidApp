@@ -17,6 +17,8 @@ class CommentsDataSource {
         fun getCommentsFromHTTP(url: String): JSONArray {
             val jsonList = JSONArray()
             val (request, response, result) = url.httpGet()
+                .appendHeader("user", ApplicationContext.getConnectedUsername())
+                .appendHeader("token", ApplicationContext.getConnectedToken())
                 .jsonBody(
                     "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
                             " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +

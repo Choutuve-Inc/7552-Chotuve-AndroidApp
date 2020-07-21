@@ -17,7 +17,7 @@
             android:id="@+id/img_open_chats_user"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:src="@drawable/video_no_thumbnail"
+            android:src="@drawable/default_user"
             android:layout_marginStart="4dp"
             app:civ_border_width="1dp"/>
 

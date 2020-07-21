@@ -75,12 +75,12 @@ class VideoActivity : AppCompatActivity() {
 
         btnUpvote.setOnClickListener {
             Log.d(TAG, "Upvoted!")
-            votePossitiveOnVideo(true)
+            votePositiveOnVideo(true)
         }
 
         btnDownvote.setOnClickListener {
             Log.d(TAG, "Downvoted!")
-            votePossitiveOnVideo(false)
+            votePositiveOnVideo(false)
         }
 
         btnPostComment.setOnClickListener {
@@ -174,9 +174,11 @@ class VideoActivity : AppCompatActivity() {
         Toast.makeText(this@VideoActivity, message, Toast.LENGTH_LONG).show()
     }
 
-    private fun votePossitiveOnVideo(value: Boolean){
+    private fun votePositiveOnVideo(value: Boolean){
         val videoLikesURL = "${stringURL}/$vidID/likes"
         videoLikesURL.httpPost()
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
                 "{" +
                         " \"user\": \"${ApplicationContext.getConnectedUsername()}\", " +
@@ -202,6 +204,8 @@ class VideoActivity : AppCompatActivity() {
     private fun updateLikeCount(){
         val videoLikesURL = "${stringURL}/$vidID/likes"
         videoLikesURL.httpGet()
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
             .responseJson{request, response, result ->
                 when (result){
                     is Result.Success -> {
@@ -289,6 +293,8 @@ class VideoActivity : AppCompatActivity() {
     private fun performPostComment() {
         val commentURL = "$stringURL/$vidID/comments"
         commentURL.httpPost()
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
                 "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
                         " \"token\" : \"${ApplicationContext.getConnectedToken()}\"," +

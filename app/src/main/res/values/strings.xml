@@ -31,4 +31,9 @@
     <string name="ChatActivity">Chatube</string>
     <string name="enter_message">Enter Message</string>
     <string name="send">Send</string>
+    <string name="ProfileActivity">User Profile</string>
+    <string name="username_value">Username Value</string>
+    <string name="email_value">Email Value</string>
+    <string name="phone_number_value">Phone Number Value</string>
+    <string name="edit_icon">Edit icon</string>
 </resources>

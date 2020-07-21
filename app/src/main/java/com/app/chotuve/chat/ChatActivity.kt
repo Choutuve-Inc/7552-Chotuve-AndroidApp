@@ -120,6 +120,8 @@ class ChatActivity : AppCompatActivity() {
         val deviceId = ApplicationContext.getDeviceID()
         Log.d(TAG,"device: $deviceId")
         Fuel.post(serverURL)
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
                 "{ \"idSender\" : \"${ApplicationContext.getConnectedUsername()}\"," +
                         " \"idReciever\" : \"${deviceId}\", " +

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".video.VideoActivity">
 
@@ -112,6 +112,12 @@
             android:layout_height="wrap_content" />
     </ScrollView>
 
+    <TextView
+        android:id="@+id/lbl_video_comments"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Comments:"
+        android:textStyle="bold"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rec_video_comments"
@@ -121,6 +127,7 @@
         android:layout_marginRight="4dp"
         android:layout_weight="1"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:reverseLayout="true"
          />
 
     <LinearLayout

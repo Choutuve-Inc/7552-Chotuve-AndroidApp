@@ -138,6 +138,7 @@ class LoginActivity : AppCompatActivity() {
         Log.d(TAG, "This is the userID: $userID.")
 
         val intentToHomePage = Intent(this@LoginActivity, HomePageActivity::class.java)
+        intentToHomePage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
         toastMessage("Login Successful")
         startActivity(intentToHomePage)
     }

@@ -14,6 +14,7 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.chotuve.R
+import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.home.ModelVideo
 import com.app.chotuve.home.VideoDataSource
 import com.app.chotuve.login.LoginActivity
@@ -95,7 +96,7 @@ class RegisterActivity : AppCompatActivity() {
                     val tipo = "mailPass"
                     ref.downloadUrl
                         .addOnSuccessListener {
-                            var url = it.toString()
+                            val url = it.toString()
 
                             Fuel.post(serverURL)
                                 .jsonBody(

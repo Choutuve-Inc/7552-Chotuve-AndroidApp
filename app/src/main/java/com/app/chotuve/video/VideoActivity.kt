@@ -13,6 +13,9 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.app.chotuve.R
 import com.app.chotuve.context.ApplicationContext
+import com.app.chotuve.friendlist.FriendsDataSource
+import com.app.chotuve.friendlist.ModelFriend
+import com.app.chotuve.utils.JSONArraySorter
 import com.app.chotuve.utils.TopSpacingItemDecoration
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpGet
@@ -22,6 +25,11 @@ import com.github.kittinunf.result.Result
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import kotlinx.android.synthetic.main.activity_video.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
 import org.json.JSONObject
 
 class VideoActivity : AppCompatActivity() {
@@ -48,6 +56,7 @@ class VideoActivity : AppCompatActivity() {
         val btnAddFriend: Button = findViewById(R.id.btn_video_add_friend)
         val btnUpvote: Button = findViewById(R.id.btn_video_upvote)
         val btnDownvote: Button = findViewById(R.id.btn_video_downvote)
+        val btnPostComment: Button = findViewById(R.id.btn_video_send)
         btnAddFriend.isEnabled = true
         if (txt_video_user.text == ApplicationContext.getConnectedUsername()){
             //btnAddFriend.isEnabled = false
@@ -66,12 +75,20 @@ class VideoActivity : AppCompatActivity() {
 
         btnUpvote.setOnClickListener {
             Log.d(TAG, "Upvoted!")
-            votePossitiveOnVideo(true)
+            votePositiveOnVideo(true)
         }
 
         btnDownvote.setOnClickListener {
             Log.d(TAG, "Downvoted!")
-            votePossitiveOnVideo(false)
+            votePositiveOnVideo(false)
+        }
+
+        btnPostComment.setOnClickListener {
+            Log.d(TAG, "Comment SEND clicked")
+            if (txt_video_comment.text.toString() != ""){
+                performPostComment()
+                txt_video_comment.text.clear()
+            }
         }
 
         mediaController = MediaController(this)
@@ -95,14 +112,41 @@ class VideoActivity : AppCompatActivity() {
                 addItemDecoration(topSpacingDecoration)
             }
 
-        commentsAdapter.add(ModelComment(Comment()))
-        commentsAdapter.add(ModelComment(Comment()))
-        commentsAdapter.add(ModelComment(Comment()))
-        commentsAdapter.add(ModelComment(Comment()))
-        commentsAdapter.add(ModelComment(Comment()))
-        commentsAdapter.add(ModelComment(Comment()))
+        refreshComments()
 
+    }
 
+    private fun refreshComments() {
+        CoroutineScope(Dispatchers.IO).launch {
+            getData()
+        }
+    }
+
+    private suspend fun getData() {
+        val commentURL = "${stringURL}/$vidID/comments"
+        var vidComments = CommentsDataSource.getCommentsFromHTTP(commentURL)
+        withContext(Dispatchers.Main){
+            commentsAdapter.clear()
+        }
+        vidComments = JSONArraySorter.sortJSONArrayByFirstLevelIntField(vidComments, "id")
+        for (i in 0 until vidComments.length()) {
+            val item = vidComments.getJSONObject(i)
+            val username = item["user"] as String
+            val text = item["text"] as String
+            Thread.sleep(10) //Needed for correct order on the comment list
+            CoroutineScope(Dispatchers.IO).launch{
+                addVideoToRecyclerView(ModelComment(Comment(username,text)))
+            }
+        }
+        Log.d(TAG, "Comments got: ${vidComments.length()}.")
+    }
+
+    private suspend fun addVideoToRecyclerView(comment: ModelComment){
+        withContext(Dispatchers.Main){
+            Log.d(TAG, "Friend add Item Sent.")
+            commentsAdapter.add(comment)
+            commentsAdapter.notifyDataSetChanged()
+        }
     }
 
     override fun onStart() {
@@ -130,9 +174,11 @@ class VideoActivity : AppCompatActivity() {
         Toast.makeText(this@VideoActivity, message, Toast.LENGTH_LONG).show()
     }
 
-    private fun votePossitiveOnVideo(value: Boolean){
+    private fun votePositiveOnVideo(value: Boolean){
         val videoLikesURL = "${stringURL}/$vidID/likes"
         videoLikesURL.httpPost()
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
                 "{" +
                         " \"user\": \"${ApplicationContext.getConnectedUsername()}\", " +
@@ -158,6 +204,8 @@ class VideoActivity : AppCompatActivity() {
     private fun updateLikeCount(){
         val videoLikesURL = "${stringURL}/$vidID/likes"
         videoLikesURL.httpGet()
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
             .responseJson{request, response, result ->
                 when (result){
                     is Result.Success -> {
@@ -240,5 +288,32 @@ class VideoActivity : AppCompatActivity() {
         builder.setNegativeButton("NO",dialogClickListener)
         dialog = builder.create()
         dialog.show()
+    }
+
+    private fun performPostComment() {
+        val commentURL = "$stringURL/$vidID/comments"
+        commentURL.httpPost()
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
+            .jsonBody(
+                "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
+                        " \"token\" : \"${ApplicationContext.getConnectedToken()}\"," +
+                        "\"text\" : \"${txt_video_comment.text}\"" +
+                        "}"
+            )
+            .response { request, response, result ->
+                when (result) {
+                    is Result.Success -> {
+                        Log.d(TAG, "HTTP Success [performPostComment]")
+                        refreshComments()
+                    }
+                    is Result.Failure -> {
+                        //Look up code and choose what to do.
+                        Log.d(TAG, "Error posting Comment.")
+                        Log.d(TAG, "Error Code: ${response.statusCode}")
+                        Log.d(TAG, "Error Message: ${result.error}")
+                    }
+                }
+            }
     }
 }

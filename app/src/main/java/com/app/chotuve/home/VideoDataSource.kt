@@ -2,6 +2,7 @@ package com.app.chotuve.home
 
 import android.util.Log
 import com.app.chotuve.context.ApplicationContext
+import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
@@ -23,13 +24,9 @@ class VideoDataSource {
         fun getVideosFromHTTP(): JSONArray {
             val jsonList = JSONArray()
             val user = "${ApplicationContext.getConnectedUsername()}"
-            val (request, response, result) = "https://choutuve-app-server.herokuapp.com/feed".httpPost()
-                .jsonBody(
-                    "{" +
-                            " \"user\": \"$user\", " +
-                            " \"token\": \"${ApplicationContext.getConnectedToken()}\"" +
-                            "}"
-                )
+            val (request, response, result) = Fuel.get("https://arcane-thicket-79100.herokuapp.com/videos",listOf("friendList" to user))
+                .appendHeader("user", user)
+                .appendHeader("token", ApplicationContext.getConnectedToken())
                 .responseJson()
             when (result) {
                 is Result.Success -> {
@@ -52,6 +49,8 @@ class VideoDataSource {
             val json = JSONObject()
             val singleVideoURL = "$serverURL/$vidID"
             val (request, response, result) = singleVideoURL.httpGet()
+                .appendHeader("user", ApplicationContext.getConnectedUsername())
+                .appendHeader("token", ApplicationContext.getConnectedToken())
                 .jsonBody(
                     "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
                             " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +

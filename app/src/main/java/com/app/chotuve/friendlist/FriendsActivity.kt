@@ -8,6 +8,7 @@ import android.widget.Toast
 import com.app.chotuve.R
 import com.app.chotuve.chat.ChatActivity
 import com.app.chotuve.friendlist.FriendsDataSource.Companion.getFriendFromFirebase
+import com.app.chotuve.utils.JSONArraySorter
 import com.app.chotuve.utils.TopSpacingItemDecoration
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
@@ -53,12 +54,17 @@ class FriendsActivity : AppCompatActivity() {
     }
 
     private suspend fun getData() {
-        val friends = FriendsDataSource.getUsersFromHTTP()
+        var friends = FriendsDataSource.getUsersFromHTTP()
+        withContext(Dispatchers.Main){
+            friendlistAdapter.clear()
+        }
+        friends = JSONArraySorter.sortJSONArrayByFirstLevelStringField(friends, "displayName")
         for (i in 0 until friends.length()) {
             val item = friends.getJSONObject(i)
             val username = item["displayName"] as String
             val userID = item["uid"] as String
             val imageID = item["photoURL"] as String //photoURL
+            Thread.sleep(10)//Needed for correct order on the friend list
             CoroutineScope(Dispatchers.IO).launch{
                 val friend = getFriendFromFirebase(username, userID, imageID)
                 addVideoToRecyclerView(ModelFriend(friend))

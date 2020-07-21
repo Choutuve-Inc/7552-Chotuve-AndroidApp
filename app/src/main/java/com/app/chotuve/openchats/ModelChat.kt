@@ -30,6 +30,8 @@ class ModelChat(val openChat: OpenChat): Item<GroupieViewHolder>() {
 
 
         "$serverURL/${openChat.friend.userID}".httpGet()
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
                 "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
                         " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +

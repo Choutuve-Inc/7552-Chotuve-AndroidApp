@@ -215,7 +215,7 @@ class VideoActivity : AppCompatActivity() {
                         val react = json["reactions"] as JSONObject
                         val upvoteCount = react["likes"] as Int
                         val downvoteCount = react["dislike"] as Int
-                        modifyVoteCount(upvoteCount - downvoteCount)
+                        modifyVoteCount(upvoteCount, downvoteCount)
 
                     }
                     is Result.Failure -> {
@@ -227,19 +227,27 @@ class VideoActivity : AppCompatActivity() {
             }
     }
 
-    private fun modifyVoteCount(count: Int){
-        var newCount: String
-        if(count>0){
-            lbl_video_vote_count.setTextColor(0xFF00A800.toInt())
-            newCount = String.format("%03d", count)
-        }else if (count<0){
-            lbl_video_vote_count.setTextColor(-0x10000)
-            newCount = String.format("%04d", count)
+    private fun modifyVoteCount(upvote: Int, downvote: Int){
+        var upvoteCount: String
+        var downvoteCount: String
+        if(upvote>0){
+            lbl_video_upvote_count.setTextColor(0xFF00A800.toInt())
+            upvoteCount = String.format("%03d", upvote)
         }else{
-            lbl_video_vote_count.setTextColor(-0x1000000)
-            newCount = "000"
+            lbl_video_upvote_count.setTextColor(-0x1000000)
+            upvoteCount = "000"
         }
-        lbl_video_vote_count.text = newCount
+
+        if (downvote>0){
+            lbl_video_downvote_count.setTextColor(-0x10000)
+            downvoteCount = String.format("%04d", -downvote)
+        }else{
+            lbl_video_downvote_count.setTextColor(-0x1000000)
+            downvoteCount = "000"
+        }
+
+        lbl_video_upvote_count.text = upvoteCount
+        lbl_video_downvote_count.text = downvoteCount
     }
 
     private fun showAddFriendDialog(){

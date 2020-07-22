@@ -7,45 +7,52 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.widget.Toast
-import androidx.core.view.isVisible
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.app.chotuve.R
 import com.app.chotuve.context.ApplicationContext
-import com.app.chotuve.friendlist.FriendsDataSource
-import com.app.chotuve.video.CommentsDataSource
+import com.app.chotuve.home.ModelVideo
+import com.app.chotuve.home.VideoDataSource
+import com.app.chotuve.utils.TopSpacingItemDecoration
+import com.app.chotuve.video.VideoActivity
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.httpPatch
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.google.firebase.storage.FirebaseStorage
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.activity_profile.*
-import kotlinx.android.synthetic.main.activity_register.*
-import kotlinx.android.synthetic.main.layout_friend_list_item.view.*
 import kotlinx.android.synthetic.main.layout_profile_popup.*
 import kotlinx.android.synthetic.main.layout_profile_popup.view.*
-import org.json.JSONArray
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.util.*
 
-class ProfileActivity : AppCompatActivity() {
+class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideoListener {
     private val TAG: String = "Profile Screen"
-        private val serverURL: String = "https://serene-shelf-10674.herokuapp.com/users"
+    private val serverURL: String = "https://serene-shelf-10674.herokuapp.com/users"
+    private lateinit var userID: String
     private var selectedPhotoUri: Uri? = null
+    private lateinit var videoListAdapter: VideoProfileRecyclerAdapter
+    private var videoItems: ArrayList<ModelVideo> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-
-        setCurrentUserData()
+        userID = intent.getStringExtra("userID")
+        val currentUser = ApplicationContext.getConnectedUsername()
+        if (currentUser != userID){
+            disableEdition()
+        }
 
         btn_profile_image.setOnClickListener{
             Log.d(TAG, "Photo Button Clicked")
@@ -69,6 +76,113 @@ class ProfileActivity : AppCompatActivity() {
             Log.d(TAG, "Phone edit clicked")
             openPhoneDialog()
         }
+        //INFO
+        setCurrentUserData()
+
+        //VIDEOS
+        initVideosRecycleView()
+        setCurrentUserVideos()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
+    //INFO
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null){
+            selectedPhotoUri = data.data
+            changePhoto()
+        }
+    }
+
+    private fun changePhoto(){
+        bar_profile_progress.visibility = View.VISIBLE
+        val filename = UUID.randomUUID().toString()
+        val ref = FirebaseStorage.getInstance().getReference("/userPic/$filename")
+        ref.putFile(selectedPhotoUri!!)
+            .addOnSuccessListener{
+                ref.downloadUrl
+                    .addOnSuccessListener {
+                        val photoUrl = it.toString()
+                        FuelManager.instance.forceMethods = true
+                        Fuel.patch("${serverURL}/${ApplicationContext.getConnectedUsername()}")
+                            .appendHeader("user", ApplicationContext.getConnectedUsername())
+                            .appendHeader("token", ApplicationContext.getConnectedToken())
+                            .jsonBody(
+                                "{" +
+                                        " \"Nimage\" : \"${photoUrl}\"" +
+                                        "}"
+                            )
+                            .responseJson { request, response, result ->
+                                when (result) {
+                                    is Result.Success -> {
+                                        Log.d(TAG, "HTTP Success [getUserPhoto]")
+                                        val body = response.body()
+                                        val json = JSONObject(body.asString("application/json"))
+
+                                        Picasso.get().load(json.getString("photoURL")).into(img_profile_user)
+                                        bar_profile_progress.visibility = View.INVISIBLE
+                                        toastMessage("Your user photo was updated!")
+                                    }
+                                    is Result.Failure -> {
+                                        //Look up code and choose what to do.
+                                        Log.d(TAG, "Error obtaining User.")
+                                        Log.d(TAG, "Error Code: ${response.statusCode}")
+                                        Log.d(TAG, "Error Message: ${result.error}")
+                                        Log.d(TAG, "request was: $request")
+                                        bar_profile_progress.visibility = View.INVISIBLE
+                                    }
+                                }
+                            }
+                    }
+                    .addOnFailureListener{
+                        Log.d(TAG, "Error obtaining URL")
+                        bar_profile_progress.visibility = View.INVISIBLE
+                    }
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "Error uploading photo")
+                bar_profile_progress.visibility = View.INVISIBLE
+            }
+    }
+
+    private fun setCurrentUserData(){
+        val userURL = "${serverURL}/${userID}"
+        Log.d(TAG, "setCurrentUserData: ${userURL}")
+        userURL.httpGet()
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
+            .jsonBody(
+                "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
+                        " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +
+                        "}"
+            )
+            .responseJson { request, response, result ->
+                when (result) {
+                    is Result.Success -> {
+                        Log.d(TAG, "HTTP Success [getSingleUserFromHTTP]")
+                        val body = response.body()
+                        val user = JSONObject(body.asString("application/json"))
+                        Picasso.get().load(user.getString("photoURL")).into(img_profile_user)
+                        val username = user.getString("displayName")
+                        supportActionBar!!.title = "${username}'s Profile"
+                        lbl_profile_username_value.text = username
+                        lbl_profile_email_value.text = user.getString("email")
+                        lbl_profile_phone_value.text = user.getString("phoneNumber")
+
+                    }
+                    is Result.Failure -> {
+                        //Look up code and choose what to do.
+                        Log.d(TAG, "Error obtaining connected user.")
+                        Log.d(TAG, "Error code: ${response.statusCode}")
+                        Log.d(TAG, "Error Message: ${result.error}")
+                    }
+                }
+            }
     }
 
     private fun openUsernameDialog(){
@@ -260,74 +374,48 @@ class ProfileActivity : AppCompatActivity() {
             }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null){
-            selectedPhotoUri = data.data
-            changePhoto()
+    //VIDEOS
+
+    private fun initVideosRecycleView(){
+        rec_profile_videos.apply {
+            layoutManager = LinearLayoutManager(this@ProfileActivity)
+            val topSpacingDecoration =
+                TopSpacingItemDecoration(15)
+            addItemDecoration(topSpacingDecoration)
+
+            videoListAdapter = VideoProfileRecyclerAdapter(this@ProfileActivity)
+            adapter = videoListAdapter
         }
     }
 
-    private fun changePhoto(){
-        bar_profile_progress.visibility = View.VISIBLE
-        val filename = UUID.randomUUID().toString()
-        val ref = FirebaseStorage.getInstance().getReference("/userPic/$filename")
-        ref.putFile(selectedPhotoUri!!)
-            .addOnSuccessListener{
-                ref.downloadUrl
-                    .addOnSuccessListener {
-                        val photoUrl = it.toString()
-                        FuelManager.instance.forceMethods = true
-                        Fuel.patch("${serverURL}/${ApplicationContext.getConnectedUsername()}")
-                            .appendHeader("user", ApplicationContext.getConnectedUsername())
-                            .appendHeader("token", ApplicationContext.getConnectedToken())
-                            .jsonBody(
-                                "{" +
-                                        " \"Nimage\" : \"${photoUrl}\"" +
-                                        "}"
-                            )
-                            .responseJson { request, response, result ->
-                                when (result) {
-                                    is Result.Success -> {
-                                        Log.d(TAG, "HTTP Success [getUserPhoto]")
-                                        val body = response.body()
-                                        val json = JSONObject(body.asString("application/json"))
-
-                                        Picasso.get().load(json.getString("photoURL")).into(img_profile_user)
-                                        bar_profile_progress.visibility = View.INVISIBLE
-                                        toastMessage("Your user photo was updated!")
-                                    }
-                                    is Result.Failure -> {
-                                        //Look up code and choose what to do.
-                                        Log.d(TAG, "Error obtaining User.")
-                                        Log.d(TAG, "Error Code: ${response.statusCode}")
-                                        Log.d(TAG, "Error Message: ${result.error}")
-                                        Log.d(TAG, "request was: $request")
-                                        bar_profile_progress.visibility = View.INVISIBLE
-                                    }
-                                }
-                            }
-                    }
-                    .addOnFailureListener{
-                        Log.d(TAG, "Error obtaining URL")
-                        bar_profile_progress.visibility = View.INVISIBLE
-                    }
-            }
-            .addOnFailureListener {
-                Log.d(TAG, "Error uploading photo")
-                bar_profile_progress.visibility = View.INVISIBLE
-            }
+    private fun setCurrentUserVideos(){
+        CoroutineScope(Dispatchers.IO).launch {
+            getVideosData()
+        }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    private suspend fun getVideosData() {
+        var videos = VideoDataSource.getVideosFromHTTP(userID)
+        for (i in 0 until videos.length()) {
+            val item = videos.getJSONObject(i)
+            val date = item["date"] as String
+            val title = item["title"] as String
+            val userID = item["user"] as String
+            val thumbURL: String = item["thumbnail"] as String
+            val vidID: Int = item["id"] as Int
+            Thread.sleep(10) //Needed for correct order on the video feed list
+            CoroutineScope(Dispatchers.IO).launch{
+                val username = getUsernameFromHTTP(userID)
+                val video = VideoDataSource.getVideoFromFirebase(date, title, username, thumbURL, vidID)
+                addVideoToRecyclerView(video)
+            }
+        }
+        Log.d(TAG, "Videos got: ${videos.length()}.")
     }
 
-    private fun setCurrentUserData(){
-        val userURL = "${serverURL}/${ApplicationContext.getConnectedUsername()}"
-        Log.d(TAG, "setCurrentUserData: ${userURL}")
-        userURL.httpGet()
+    private fun getUsernameFromHTTP(videoUserID: String): String {
+        val serverURL = "https://serene-shelf-10674.herokuapp.com/users/${videoUserID}"
+        val (request, response, result) = serverURL.httpGet()
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
@@ -335,28 +423,65 @@ class ProfileActivity : AppCompatActivity() {
                         " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +
                         "}"
             )
-            .responseJson { request, response, result ->
-                when (result) {
-                    is Result.Success -> {
-                        Log.d(TAG, "HTTP Success [getSingleUserFromHTTP]")
-                        val body = response.body()
-                        val user = JSONObject(body.asString("application/json"))
-                        Picasso.get().load(user.getString("photoURL")).into(img_profile_user)
-                        val username = user.getString("displayName")
-                        supportActionBar!!.title = "${username}'s Profile"
-                        lbl_profile_username_value.text = username
-                        lbl_profile_email_value.text = user.getString("email")
-                        lbl_profile_phone_value.text = user.getString("phoneNumber")
-
-                    }
-                    is Result.Failure -> {
-                        //Look up code and choose what to do.
-                        Log.d(TAG, "Error obtaining connected user.")
-                        Log.d(TAG, "Error code: ${response.statusCode}")
-                        Log.d(TAG, "Error Message: ${result.error}")
-                    }
-                }
+            .responseJson()
+        when (result) {
+            is Result.Success -> {
+                Log.d(TAG, "HTTP Success [getUsernameFromHTTP]")
+                val body = response.body()
+                val json = JSONObject(body.asString("application/json"))
+                return json.getString("displayName")
             }
+            is Result.Failure -> {
+                //Look up code and choose what to do.
+                Log.d(TAG, "Error obtaining User by id ${userID}.")
+                return userID
+            }
+        }
+    }
+
+    private suspend fun addVideoToRecyclerView(video:ModelVideo){
+        withContext(Dispatchers.Main){
+            Log.d(TAG, "Add Item Sent.")
+            videoListAdapter.addItem(video)
+            videoItems.add(video)
+            videoListAdapter.notifyDataSetChanged()
+        }
+    }
+
+    override fun onVideoClick(position: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val selectedVideo = videoItems[position]
+            val storage = FirebaseStorage.getInstance().reference
+            val video = VideoDataSource.getSingleVideoFromHTTP(selectedVideo.videoID)
+
+            storage.child("videos/").child(video["url"] as String).downloadUrl
+                .addOnSuccessListener {
+                    var videoURL = it.toString()
+                    val intentToVideo = Intent(this@ProfileActivity, VideoActivity::class.java)
+                    intentToVideo.putExtra("videoURL", videoURL)
+                    intentToVideo.putExtra("title", selectedVideo.title)
+                    intentToVideo.putExtra("username", selectedVideo.username)
+                    intentToVideo.putExtra("date", selectedVideo.date)
+                    intentToVideo.putExtra("description", video["description"] as String)
+                    intentToVideo.putExtra("videoID", selectedVideo.videoID)
+                    startActivity(intentToVideo)
+                    Log.d(TAG, "Success $videoURL.")
+                }.addOnFailureListener {
+                    Log.d(TAG, "Error obtaining Video: ${it.message}.")
+                }
+            Log.d(TAG, "Video clicked")
+        }
+    }
+
+
+    private fun disableEdition(){
+        btn_profile_image.isEnabled = false
+        img_profile_edit_username.visibility = View.INVISIBLE
+        btn_profile_edit_username.isEnabled = false
+        img_profile_edit_mail.visibility = View.INVISIBLE
+        btn_profile_edit_mail.isEnabled = false
+        img_profile_edit_phone.visibility = View.INVISIBLE
+        btn_profile_edit_phone.isEnabled = false
     }
 
     private fun toastMessage(message: String) {

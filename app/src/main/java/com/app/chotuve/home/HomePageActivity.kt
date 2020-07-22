@@ -72,6 +72,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
             R.id.top_home_profile -> {
                 Log.d(TAG, "Profile Button Clicked")
                 val intentToProfilePage = Intent(this@HomePageActivity, ProfileActivity::class.java)
+                intentToProfilePage.putExtra("userID", ApplicationContext.getConnectedUsername())
                 startActivity(intentToProfilePage)
             }
         }
@@ -126,7 +127,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
     }
 
     private suspend fun getData() {
-        var videos = VideoDataSource.getVideosFromHTTP()
+        var videos = VideoDataSource.getVideosFromHTTP(ApplicationContext.getConnectedUsername())
         for (i in 0 until videos.length()) {
             val item = videos.getJSONObject(i)
             val date = item["date"] as String

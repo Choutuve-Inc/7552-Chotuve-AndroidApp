@@ -6,7 +6,4 @@ data class ModelVideo(
     var image: String,
     var date: String,
     var videoID: Int
-
-) {
-
-}
+) {}

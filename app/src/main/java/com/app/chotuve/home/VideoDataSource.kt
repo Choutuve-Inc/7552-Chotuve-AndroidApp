@@ -21,9 +21,8 @@ class VideoDataSource {
         //TODO private const val serverURL: String = "https://arcane-thicket-79100.herokuapp.com/videos"
         private const val serverURL: String = "https://choutuve-app-server.herokuapp.com/videos"
 
-        fun getVideosFromHTTP(): JSONArray {
+        fun getVideosFromHTTP(user: String): JSONArray {
             val jsonList = JSONArray()
-            val user = "${ApplicationContext.getConnectedUsername()}"
             val (request, response, result) = Fuel.get("https://arcane-thicket-79100.herokuapp.com/videos",listOf("friendList" to user))
                 .appendHeader("user", user)
                 .appendHeader("token", ApplicationContext.getConnectedToken())

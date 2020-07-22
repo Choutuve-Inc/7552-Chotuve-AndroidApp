@@ -1,12 +1,18 @@
 package com.app.chotuve.chat
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import com.app.chotuve.R
 import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.friendlist.Friend
+import com.app.chotuve.friendlist.FriendsActivity
 import com.app.chotuve.friendlist.FriendsDataSource
+import com.app.chotuve.home.HomePageActivity
+import com.app.chotuve.profile.ProfileActivity
 import com.app.chotuve.utils.TopSpacingItemDecoration
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
@@ -57,6 +63,24 @@ class ChatActivity : AppCompatActivity() {
         }
 
         listenForMessages()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.top_menu_chat_page, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item?.itemId){
+            R.id.top_chat_profile -> {
+                Log.d(TAG, "Profile Button Clicked")
+                val intentToProfilePage = Intent(this@ChatActivity, ProfileActivity::class.java)
+                intentToProfilePage.putExtra("userID", chattingFriend.userID)
+                startActivity(intentToProfilePage)
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     private fun listenForMessages() {

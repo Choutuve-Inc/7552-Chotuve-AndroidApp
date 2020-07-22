@@ -80,6 +80,7 @@ class OpenChatsActivity : AppCompatActivity() {
             R.id.top_chats_profile -> {
                 Log.d(TAG, "Profile Button Clicked")
                 val intentToProfilePage = Intent(this@OpenChatsActivity, ProfileActivity::class.java)
+                intentToProfilePage.putExtra("userID", ApplicationContext.getConnectedUsername())
                 startActivity(intentToProfilePage)
             }
         }

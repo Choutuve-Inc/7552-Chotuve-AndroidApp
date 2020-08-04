@@ -16,7 +16,6 @@ import org.json.JSONObject
 
 
 class ModelChatOutgoingItem(var messageText: String, var imageURL: String?) : Item<GroupieViewHolder>(){
-    private val serverURL: String = "https://serene-shelf-10674.herokuapp.com/users"
     private val TAG: String = "ModelChatItem"
     override fun getLayout(): Int {
         return R.layout.layout_chat_from_item
@@ -28,7 +27,7 @@ class ModelChatOutgoingItem(var messageText: String, var imageURL: String?) : It
         if (imageURL!=null){
             Picasso.get().load(imageURL).into(viewHolder.itemView.img_chat_user)
         }else{
-            "$serverURL/${ApplicationContext.getConnectedUsername()}".httpGet()
+            "${ApplicationContext.getServerURL()}/users/${ApplicationContext.getConnectedUsername()}".httpGet()
                 .jsonBody(
                     "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
                             " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +
@@ -37,7 +36,7 @@ class ModelChatOutgoingItem(var messageText: String, var imageURL: String?) : It
                 .responseJson { request, response, result ->
                     when (result) {
                         is Result.Success -> {
-                            Log.d(TAG, "HTTP Success [getSingleUserFromHTTP]")
+                            Log.d(TAG, "HTTP Success [bind]")
                             val body = response.body()
                             val user = JSONObject(body.asString("application/json"))
                             val myPhoto = user["photoURL"] as String
@@ -63,7 +62,7 @@ class ModelChatIncomingItem(var messageText: String, var imageURL: String?) : It
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
         viewHolder.itemView.lbl_chat_message.text = messageText
 
-        if (imageURL!=null) Picasso.get().load(imageURL).into(viewHolder.itemView.img_chat_user)
+        if (!imageURL.isNullOrBlank()) Picasso.get().load(imageURL).into(viewHolder.itemView.img_chat_user)
     }
 
 }

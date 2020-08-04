@@ -29,7 +29,6 @@ import java.util.*
 class RegisterActivity : AppCompatActivity() {
 
     private val TAG: String = "Sign Up Screen"
-    private val serverURL: String = "https://choutuve-app-server.herokuapp.com/create"
     private var selectedPhotoUri: Uri? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +46,7 @@ class RegisterActivity : AppCompatActivity() {
         btnCancel.setOnClickListener{
             Log.d(TAG, "Cancel Button Clicked")
             val intentCancel = Intent(this@RegisterActivity, LoginActivity::class.java)
+            intentCancel.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
             startActivity(intentCancel)
         }
 
@@ -98,7 +98,7 @@ class RegisterActivity : AppCompatActivity() {
                         .addOnSuccessListener {
                             val url = it.toString()
 
-                            Fuel.post(serverURL)
+                            Fuel.post("${ApplicationContext.getServerURL()}/create")
                                 .jsonBody(
                                     "{ \"email\" : \"$email\"," +
                                             " \"phone\" : \"$phone\"," +
@@ -214,13 +214,6 @@ class RegisterActivity : AppCompatActivity() {
             dialog.show()
             return false
         }
-        if (!validStrings.matches(user)){
-            builder.setTitle("Invalid Username")
-            builder.setMessage("Username con only contain letters, numbers, underscore or dash")
-            val dialog: AlertDialog = builder.create()
-            dialog.show()
-            return false
-        }
         if (!validStrings.matches(password)){
             builder.setTitle("Invalid Password")
             builder.setMessage("Password con only contain letters, numbers, underscore or dash")
@@ -235,8 +228,6 @@ class RegisterActivity : AppCompatActivity() {
             dialog.show()
             return false
         }
-        // Display the alert dialog on app interface
-
         return true
     }
 }

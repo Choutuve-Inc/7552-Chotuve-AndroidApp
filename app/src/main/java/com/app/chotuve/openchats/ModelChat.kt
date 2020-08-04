@@ -5,7 +5,6 @@ import com.app.chotuve.R
 import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.friendlist.FriendsDataSource
 import com.app.chotuve.friendlist.FriendsDataSource.Companion.getFriendFromFirebase
-import com.app.chotuve.friendlist.FriendsDataSource.Companion.getSingleUserFromHTTP
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.json.responseJson
@@ -18,7 +17,6 @@ import kotlinx.android.synthetic.main.layout_chat_list_item.view.*
 import org.json.JSONObject
 
 class ModelChat(val openChat: OpenChat): Item<GroupieViewHolder>() {
-    private val serverURL: String = "https://serene-shelf-10674.herokuapp.com/users"
     private val TAG = "ModelChat"
 
     override fun getLayout(): Int {
@@ -29,7 +27,7 @@ class ModelChat(val openChat: OpenChat): Item<GroupieViewHolder>() {
         viewHolder.itemView.lbl_open_chats_text.text = openChat.text
 
 
-        "$serverURL/${openChat.friend.userID}".httpGet()
+        "${ApplicationContext.getServerURL()}/users/${openChat.friend.userID}".httpGet()
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
@@ -40,7 +38,7 @@ class ModelChat(val openChat: OpenChat): Item<GroupieViewHolder>() {
             .responseJson { request, response, result ->
                 when (result) {
                     is Result.Success -> {
-                        Log.d(TAG, "HTTP Success [getSingleUserFromHTTP]")
+                        Log.d(TAG, "HTTP Success [bind]")
                         val body = response.body()
                         val user = JSONObject(body.asString("application/json"))
 
@@ -52,6 +50,7 @@ class ModelChat(val openChat: OpenChat): Item<GroupieViewHolder>() {
                     }
                     is Result.Failure -> {
                         //Look up code and choose what to do.
+                        Log.d(TAG, "request: $request")
                         Log.d(TAG, "Error obtaining User with ID: ${openChat.friend.userID}.")
                         Log.d(TAG, "Code: ${result.error}")
                     }

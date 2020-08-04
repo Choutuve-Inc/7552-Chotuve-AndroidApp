@@ -1,49 +1,40 @@
-package com.app.chotuve.friendlist
+package com.app.chotuve.friendrequests
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import com.app.chotuve.R
-import com.app.chotuve.chat.ChatActivity
-import com.app.chotuve.friendlist.FriendsDataSource.Companion.getFriendFromFirebase
+import com.app.chotuve.context.ApplicationContext
+import com.app.chotuve.friendlist.FriendsDataSource
 import com.app.chotuve.utils.JSONArraySorter
 import com.app.chotuve.utils.TopSpacingItemDecoration
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.extensions.jsonBody
+import com.github.kittinunf.fuel.httpGet
+import com.github.kittinunf.fuel.json.responseJson
+import com.github.kittinunf.result.Result
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
 import kotlinx.android.synthetic.main.activity_friend_requests.*
-import kotlinx.android.synthetic.main.activity_friends.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
 
-class FriendsActivity : AppCompatActivity() {
-    private val TAG = "Friends List"
-    private val FRIEND_KEY = "FRIEND_KEY"
-    private val friendlistAdapter = GroupAdapter<GroupieViewHolder>()
-    private var friendItems: ArrayList<ModelFriend> = ArrayList()
+class FriendRequestsActivity : AppCompatActivity() {
+    private val TAG: String = "Friend Request Screen"
+    private val friendRequestAdapter = GroupAdapter<GroupieViewHolder>()
+    private val friendRequestMap: ArrayList<ModelFriendRequest> = ArrayList()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_friends)
+        setContentView(R.layout.activity_friend_requests)
 
         addDataSet()
-        rec_friends_list.adapter = friendlistAdapter
-        
-        friendlistAdapter.setOnItemClickListener { item, view ->
+        rec_friend_requests.adapter = friendRequestAdapter
 
-            val friendItem = item as ModelFriend
-
-            val intent = Intent(this@FriendsActivity, ChatActivity::class.java)
-            intent.putExtra(FRIEND_KEY, friendItem.friend)
-            startActivity(intent)
-
-            finish()
-        }
-        
-        rec_friends_list.apply {
+        rec_friend_requests.apply {
             val topSpacingDecoration = TopSpacingItemDecoration(8)
             addItemDecoration(topSpacingDecoration)
         }
@@ -56,13 +47,13 @@ class FriendsActivity : AppCompatActivity() {
     }
 
     private suspend fun getData() {
-        var friends = FriendsDataSource.getFriendListFromHTTP()
+        var friends = FriendsDataSource.getFriendRequestsFromHTTP()
         withContext(Dispatchers.Main){
-            friendlistAdapter.clear()
+            friendRequestAdapter.clear()
         }
         friends = JSONArraySorter.sortJSONArrayByFirstLevelStringField(friends, "displayName")
         if (friends.length() > 0) {
-            lbl_friends_nothing.visibility = View.INVISIBLE
+            lbl_friend_request_nothing.visibility = View.INVISIBLE
         }
         for (i in 0 until friends.length()) {
             val item = friends.getJSONObject(i)
@@ -71,23 +62,19 @@ class FriendsActivity : AppCompatActivity() {
             val imageID = item["photoURL"] as String //photoURL
             Thread.sleep(10)//Needed for correct order on the friend list
             CoroutineScope(Dispatchers.IO).launch{
-                val friend = getFriendFromFirebase(username, userID, imageID)
-                addVideoToRecyclerView(ModelFriend(friend))
+                val friend = FriendsDataSource.getFriendFromFirebase(username, userID, imageID)
+                addVideoToRecyclerView(ModelFriendRequest(friend))
             }
         }
         Log.d(TAG, "Videos got: ${friends.length()}.")
     }
 
-    private suspend fun addVideoToRecyclerView(friend: ModelFriend){
+    private suspend fun addVideoToRecyclerView(request: ModelFriendRequest){
         withContext(Dispatchers.Main){
             Log.d(TAG, "Friend add Item Sent.")
-            friendlistAdapter.add(friend)
-            friendItems.add(friend)
-            friendlistAdapter.notifyDataSetChanged()
+            friendRequestAdapter.add(request)
+            friendRequestMap.add(request)
+            friendRequestAdapter.notifyDataSetChanged()
         }
-    }
-
-    private fun toastMessage(message: String) {
-        Toast.makeText(this@FriendsActivity, message, Toast.LENGTH_LONG).show()
     }
 }

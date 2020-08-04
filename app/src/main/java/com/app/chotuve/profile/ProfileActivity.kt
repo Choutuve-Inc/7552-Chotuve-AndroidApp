@@ -38,7 +38,6 @@ import java.util.*
 
 class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideoListener {
     private val TAG: String = "Profile Screen"
-    private val serverURL: String = "https://serene-shelf-10674.herokuapp.com/users"
     private lateinit var userID: String
     private var selectedPhotoUri: Uri? = null
     private lateinit var videoListAdapter: VideoProfileRecyclerAdapter
@@ -109,7 +108,7 @@ class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideo
                     .addOnSuccessListener {
                         val photoUrl = it.toString()
                         FuelManager.instance.forceMethods = true
-                        Fuel.patch("${serverURL}/${ApplicationContext.getConnectedUsername()}")
+                        Fuel.patch("${ApplicationContext.getServerURL()}/users/${ApplicationContext.getConnectedUsername()}")
                             .appendHeader("user", ApplicationContext.getConnectedUsername())
                             .appendHeader("token", ApplicationContext.getConnectedToken())
                             .jsonBody(
@@ -151,7 +150,7 @@ class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideo
     }
 
     private fun setCurrentUserData(){
-        val userURL = "${serverURL}/${userID}"
+        val userURL = "${ApplicationContext.getServerURL()}/users/${userID}"
         Log.d(TAG, "setCurrentUserData: ${userURL}")
         userURL.httpGet()
             .appendHeader("user", ApplicationContext.getConnectedUsername())
@@ -164,7 +163,7 @@ class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideo
             .responseJson { request, response, result ->
                 when (result) {
                     is Result.Success -> {
-                        Log.d(TAG, "HTTP Success [getSingleUserFromHTTP]")
+                        Log.d(TAG, "HTTP Success [setCurrentUserData]")
                         val body = response.body()
                         val user = JSONObject(body.asString("application/json"))
                         Picasso.get().load(user.getString("photoURL")).into(img_profile_user)
@@ -210,7 +209,7 @@ class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideo
     private fun changeUsername(username: String){
         bar_profile_progress.visibility = View.VISIBLE
         FuelManager.instance.forceMethods = true
-        Fuel.patch("${serverURL}/${ApplicationContext.getConnectedUsername()}")
+        Fuel.patch("${ApplicationContext.getServerURL()}/users/${ApplicationContext.getConnectedUsername()}")
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
@@ -266,7 +265,7 @@ class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideo
     private fun changeEmail(email: String){
         bar_profile_progress.visibility = View.VISIBLE
         FuelManager.instance.forceMethods = true
-        Fuel.patch("${serverURL}/${ApplicationContext.getConnectedUsername()}")
+        Fuel.patch("${ApplicationContext.getServerURL()}/users/${ApplicationContext.getConnectedUsername()}")
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
@@ -331,7 +330,7 @@ class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideo
     private fun changePhone(phoneNumber: String){
         bar_profile_progress.visibility = View.VISIBLE
         FuelManager.instance.forceMethods = true
-        Fuel.patch("${serverURL}/${ApplicationContext.getConnectedUsername()}")
+        Fuel.patch("${ApplicationContext.getServerURL()}/users/${ApplicationContext.getConnectedUsername()}")
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
@@ -395,7 +394,7 @@ class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideo
     }
 
     private suspend fun getVideosData() {
-        var videos = VideoDataSource.getVideosFromHTTP(userID)
+        var videos = VideoDataSource.getUserVideosFromHTTP(userID)
         for (i in 0 until videos.length()) {
             val item = videos.getJSONObject(i)
             val date = item["date"] as String
@@ -406,7 +405,7 @@ class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideo
             Thread.sleep(10) //Needed for correct order on the video feed list
             CoroutineScope(Dispatchers.IO).launch{
                 val username = getUsernameFromHTTP(userID)
-                val video = VideoDataSource.getVideoFromFirebase(date, title, username, thumbURL, vidID)
+                val video = VideoDataSource.getVideoFromFirebase(date, title, username, thumbURL, vidID, userID)
                 addVideoToRecyclerView(video)
             }
         }
@@ -414,7 +413,7 @@ class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideo
     }
 
     private fun getUsernameFromHTTP(videoUserID: String): String {
-        val serverURL = "https://serene-shelf-10674.herokuapp.com/users/${videoUserID}"
+        val serverURL = "${ApplicationContext.getServerURL()}/users/${videoUserID}"
         val (request, response, result) = serverURL.httpGet()
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())
@@ -461,6 +460,7 @@ class ProfileActivity : AppCompatActivity(), VideoProfileRecyclerAdapter.OnVideo
                     intentToVideo.putExtra("videoURL", videoURL)
                     intentToVideo.putExtra("title", selectedVideo.title)
                     intentToVideo.putExtra("username", selectedVideo.username)
+                    intentToVideo.putExtra("userID", selectedVideo.userID)
                     intentToVideo.putExtra("date", selectedVideo.date)
                     intentToVideo.putExtra("description", video["description"] as String)
                     intentToVideo.putExtra("videoID", selectedVideo.videoID)

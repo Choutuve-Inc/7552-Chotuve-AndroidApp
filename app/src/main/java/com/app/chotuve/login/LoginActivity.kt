@@ -5,9 +5,11 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -15,22 +17,28 @@ import android.widget.EditText
 import android.widget.Toast
 import com.app.chotuve.R
 import com.app.chotuve.context.ApplicationContext
+import com.app.chotuve.forgottenpassword.ChangePasswordActivity
 import com.app.chotuve.register.RegisterActivity
 import com.app.chotuve.home.HomePageActivity
 import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpPost
 import com.github.kittinunf.fuel.json.responseJson
 import com.github.kittinunf.result.Result
 import com.google.firebase.iid.FirebaseInstanceId
+import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.android.synthetic.main.activity_profile.*
+import kotlinx.android.synthetic.main.layout_login_forgotten_password.*
+import kotlinx.android.synthetic.main.layout_profile_popup.*
+import kotlinx.android.synthetic.main.layout_profile_popup.view.*
+import kotlinx.android.synthetic.main.layout_profile_popup.view.txt_profile_popup_input
 import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
 
     private val TAG: String = "Login Screen"
-    private val serverURL: String = "https://serene-shelf-10674.herokuapp.com/login"
-    //TODO private val serverURL: String = "https://choutuve-app-server.herokuapp.com/login"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,8 +69,10 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intentToRegister)
         })
 
-
-
+        lbl_login_forget_password.setOnClickListener{
+            Log.d(TAG, "Forgotten Password clicked!")
+            openMailDialog()
+        }
     }
 
     private fun toastMessage(message: String) {
@@ -73,7 +83,7 @@ class LoginActivity : AppCompatActivity() {
         val tipo: String = "mailPass"
         val deviceId = ApplicationContext.getDeviceID()
         Log.d(TAG,"device: $deviceId")
-        Fuel.post(serverURL)
+        Fuel.post("${ApplicationContext.getServerURL()}/login")
             .jsonBody(
                 "{ \"email\" : \"$email\"," +
                         " \"password\" : \"$password\", " +
@@ -109,7 +119,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun alreadyLoggedUser(uid: String) {
         Log.d(TAG, "Estoy?: ${uid}")
-        Fuel.post(serverURL)
+        Fuel.post("${ApplicationContext.getServerURL()}/login")
             .jsonBody(
                 "{ \"device\" : \"${uid}\"}"
             )
@@ -141,6 +151,54 @@ class LoginActivity : AppCompatActivity() {
         intentToHomePage.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
         toastMessage("Login Successful")
         startActivity(intentToHomePage)
+    }
+
+    //Forgotten Password
+    private fun openMailDialog(){
+        val editAlert = AlertDialog.Builder(this).create()
+        val editView = layoutInflater.inflate(R.layout.layout_login_forgotten_password, null)
+        editAlert.setView(editView)
+        editAlert.setButton(AlertDialog.BUTTON_POSITIVE, "SEND") { _, _ ->
+            if (validateEmail(editAlert.txt_login_forgotten_password_email.text.toString())) sendForgottenPasswordTokenToMail(editAlert.txt_login_forgotten_password_email.text.toString())
+        }
+        editAlert.setButton(AlertDialog.BUTTON_NEGATIVE, "CANCEL", DialogInterface.OnClickListener { dialog, which ->  })
+        editAlert.show()
+    }
+
+    private fun validateEmail(mail: String): Boolean{
+        if (mail.isBlank()){
+            toastMessage("Invalid Email Address")
+            return false
+        }
+        return true
+    }
+
+    private fun sendForgottenPasswordTokenToMail(userMail: String){
+        val URL = "${ApplicationContext.getServerURL()}/key"
+        Fuel.post(URL)
+            .jsonBody(
+                "{" +
+                        " \"email\" : \"${userMail}\"" +
+                        "}"
+            )
+            .responseJson { request, response, result ->
+                when (result) {
+                    is Result.Success -> {
+                        Log.d(TAG, "HTTP Success [getForgottenPasswordToken]")
+                        val intentToChangePassword = Intent(this@LoginActivity, ChangePasswordActivity::class.java)
+                        intentToChangePassword.putExtra("userMail", userMail)
+                        toastMessage("Email sent!")
+                        startActivity(intentToChangePassword)
+                    }
+                    is Result.Failure -> {
+                        Log.d(TAG, "Error obtaining User.")
+                        Log.d(TAG, "Error Code: ${response.statusCode}")
+                        Log.d(TAG, "Error Message: ${result.error}")
+                        Log.d(TAG, "request was: $request")
+                        toastMessage("There was an error when looking for a user with registered mail: $userMail")
+                    }
+                }
+            }
     }
 
 }

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import com.app.chotuve.R
 import com.app.chotuve.chat.ChatActivity
@@ -15,6 +16,7 @@ import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.friendlist.Friend
 import com.app.chotuve.friendlist.FriendsActivity
 import com.app.chotuve.friendlist.ModelFriend
+import com.app.chotuve.friendrequests.FriendRequestsActivity
 import com.app.chotuve.home.HomePageActivity
 import com.app.chotuve.login.LoginActivity
 import com.app.chotuve.profile.ProfileActivity
@@ -28,6 +30,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.GroupieViewHolder
+import kotlinx.android.synthetic.main.activity_friend_requests.*
 import kotlinx.android.synthetic.main.activity_open_chats.*
 
 class OpenChatsActivity : AppCompatActivity() {
@@ -62,14 +65,14 @@ class OpenChatsActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item?.itemId){
-            R.id.top_home_page_log_out -> {
+            R.id.top_chats_log_out -> {
                 Log.d(TAG, "Log Out Button Clicked")
                 logout()
             }
             R.id.top_chats_friends -> {
                 Log.d(TAG, "New Chat Button Clicked")
-                val intentToLoginPage = Intent(this@OpenChatsActivity, FriendsActivity::class.java)
-                startActivity(intentToLoginPage)
+                val intentToFriendsPage = Intent(this@OpenChatsActivity, FriendsActivity::class.java)
+                startActivity(intentToFriendsPage)
             }
             R.id.top_chats_videos -> {
                 Log.d(TAG, "Video Feed Button Clicked")
@@ -83,14 +86,18 @@ class OpenChatsActivity : AppCompatActivity() {
                 intentToProfilePage.putExtra("userID", ApplicationContext.getConnectedUsername())
                 startActivity(intentToProfilePage)
             }
+            R.id.top_chats_friend_request -> {
+                Log.d(TAG, "New Chat Button Clicked")
+                val intentToFriendRequestPage = Intent(this@OpenChatsActivity, FriendRequestsActivity::class.java)
+                startActivity(intentToFriendRequestPage)
+            }
         }
 
         return super.onOptionsItemSelected(item)
     }
 
     private fun logout(){
-        val serverURL = "https://serene-shelf-10674.herokuapp.com/logout"
-        Fuel.post(serverURL)
+        Fuel.post("${ApplicationContext.getServerURL()}/logout")
             .jsonBody(
                 "{ \"device\" : \"${ApplicationContext.getDeviceID()}\"}"
             )
@@ -116,8 +123,21 @@ class OpenChatsActivity : AppCompatActivity() {
 
     }
 
+    override fun onPause() {
+        super.onPause()
+        ApplicationContext.setShowNotifications(true)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ApplicationContext.setShowNotifications(false)
+    }
+
     private fun refreshRecView() {
         openChatsAdapter.clear()
+        if (openChatsMap.isNotEmpty()) {
+            lbl_open_chats_nothing.visibility = View.INVISIBLE
+        }
         openChatsMap.values.forEach{
             openChatsAdapter.add(it)
         }

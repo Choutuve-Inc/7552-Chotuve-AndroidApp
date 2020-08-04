@@ -4,28 +4,28 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".openchats.OpenChatsActivity">
+    tools:context=".friendrequests.FriendRequestsActivity">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rec_open_chats"
+        android:id="@+id/rec_friend_requests"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.8"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/lbl_open_chats_nothing"
+        android:id="@+id/lbl_friend_request_nothing"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="You don't have any open chats\nat the moment"
-        android:textAlignment="center"
+        android:alpha="0.8"
+        android:text="No new requests!"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -36,4 +36,9 @@
     <string name="email_value">Email Value</string>
     <string name="phone_number_value">Phone Number Value</string>
     <string name="edit_icon">Edit icon</string>
+    <string name="forget_your_password">Did you forget your password?</string>
+    <string name="confirm_your_password_here">Confirm Your Password Here!</string>
+    <string name="your_token_here">Your Token Here!</string>
+    <string name="your_password_here">Your Password Here!</string>
+    <string name="lbl_change_password_instructions">You should have recieved an email with a link to get your token.\n\n Please fill the fields below with the token sent to you and your new password:</string>
 </resources>

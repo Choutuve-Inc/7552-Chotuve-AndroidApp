@@ -17,6 +17,7 @@ import com.app.chotuve.friendlist.FriendsDataSource
 import com.app.chotuve.friendlist.ModelFriend
 import com.app.chotuve.utils.JSONArraySorter
 import com.app.chotuve.utils.TopSpacingItemDecoration
+import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.httpPost
@@ -35,12 +36,12 @@ import org.json.JSONObject
 class VideoActivity : AppCompatActivity() {
 
     private var playbackPosition = 0
-    private var stringURL = "https://arcane-thicket-79100.herokuapp.com/videos"
     private var rtStreamUrl = ""
     private lateinit var mediaController: MediaController
     private val TAG: String = "Video Screen"
     private val commentsAdapter = GroupAdapter<GroupieViewHolder>()
     private lateinit var vidID: String
+    private lateinit var vidUserID: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +52,13 @@ class VideoActivity : AppCompatActivity() {
         txt_video_user.text = intent.getStringExtra("username")
         txt_video_date.text = intent.getStringExtra("date")
         txt_video_desc.text = intent.getStringExtra("description")
+        vidUserID = intent.getStringExtra("userID")
         vidID = intent.getIntExtra("videoID", -1).toString()
+
+        if (ApplicationContext.getConnectedUsername() == vidUserID){
+            btn_video_add_friend.isEnabled = false
+            btn_video_add_friend.visibility = View.INVISIBLE
+        }
 
         val btnAddFriend: Button = findViewById(R.id.btn_video_add_friend)
         val btnUpvote: Button = findViewById(R.id.btn_video_upvote)
@@ -64,12 +71,7 @@ class VideoActivity : AppCompatActivity() {
 
         btnAddFriend.setOnClickListener {
             Log.d(TAG, "Add Friend Button Clicked")
-            val isFriend = false
-            if(isFriend){//Check if already friend
-                showDeleteFriendDialog()
-            }else {
-                showAddFriendDialog()
-            }
+            showAddFriendDialog()
         }
         updateLikeCount()
 
@@ -123,7 +125,7 @@ class VideoActivity : AppCompatActivity() {
     }
 
     private suspend fun getData() {
-        val commentURL = "${stringURL}/$vidID/comments"
+        val commentURL = "${ApplicationContext.getServerURL()}/videos/$vidID/comments"
         var vidComments = CommentsDataSource.getCommentsFromHTTP(commentURL)
         withContext(Dispatchers.Main){
             commentsAdapter.clear()
@@ -175,7 +177,7 @@ class VideoActivity : AppCompatActivity() {
     }
 
     private fun votePositiveOnVideo(value: Boolean){
-        val videoLikesURL = "${stringURL}/$vidID/likes"
+        val videoLikesURL = "${ApplicationContext.getServerURL()}/videos/$vidID/likes"
         videoLikesURL.httpPost()
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())
@@ -202,7 +204,7 @@ class VideoActivity : AppCompatActivity() {
     }
 
     private fun updateLikeCount(){
-        val videoLikesURL = "${stringURL}/$vidID/likes"
+        val videoLikesURL = "${ApplicationContext.getServerURL()}/videos/$vidID/likes"
         videoLikesURL.httpGet()
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())
@@ -260,11 +262,9 @@ class VideoActivity : AppCompatActivity() {
         val dialogClickListener = DialogInterface.OnClickListener{ _, which ->
             when(which){
                 DialogInterface.BUTTON_POSITIVE -> {
-                    toastMessage("Yes button clicked.")
-                    //Send friend request
+                    sendFriendRequest()
                 }
                 DialogInterface.BUTTON_NEGATIVE -> {
-                    toastMessage("No button clicked.")
                 }
             }
         }
@@ -274,32 +274,40 @@ class VideoActivity : AppCompatActivity() {
         dialog.show()
     }
 
-    private fun showDeleteFriendDialog(){
-        // Late initialize an alert dialog object
-        lateinit var dialog: AlertDialog
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Friend Remove")
-        builder.setMessage("Do you want to remove ${txt_video_user.text} from your friend list?")
-
-        val dialogClickListener = DialogInterface.OnClickListener{ _, which ->
-            when(which){
-                DialogInterface.BUTTON_POSITIVE -> {
-                    toastMessage("Yes button clicked.")
-                    //Send friend request
-                }
-                DialogInterface.BUTTON_NEGATIVE -> {
-                    toastMessage("No button clicked.")
+    private fun sendFriendRequest() {
+        Fuel.post("${ApplicationContext.getServerURL()}/request")
+            .appendHeader("user", ApplicationContext.getConnectedUsername())
+            .appendHeader("token", ApplicationContext.getConnectedToken())
+            .jsonBody(
+                "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
+                        " \"token\" : \"${ApplicationContext.getConnectedToken()}\"," +
+                        "\"id\" : \"$vidUserID\"" +
+                        "}"
+            )
+            .response { request, response, result ->
+                when(result) {
+                    is Result.Success -> {
+                        Log.d(TAG, "HTTP Success [sendFriendRequest]")
+                    }
+                    is Result.Failure -> {
+                        //Look up code and choose what to do.
+                        Log.d(TAG, "Error Sending Friend Request.")
+                        Log.d(TAG, "Error Code: ${response.statusCode}")
+                        Log.d(TAG, "Error Message: ${result.error}")
+                        if (response.statusCode == 404){
+                            val builder = AlertDialog.Builder(this@VideoActivity)
+                            builder.setTitle("Already a Friend")
+                            builder.setMessage("That User is already in your Friend List!")
+                            val dialog: AlertDialog = builder.create()
+                            dialog.show()
+                        }
+                    }
                 }
             }
-        }
-        builder.setPositiveButton("YES",dialogClickListener)
-        builder.setNegativeButton("NO",dialogClickListener)
-        dialog = builder.create()
-        dialog.show()
     }
 
     private fun performPostComment() {
-        val commentURL = "$stringURL/$vidID/comments"
+        val commentURL = "${ApplicationContext.getServerURL()}/videos/$vidID/comments"
         commentURL.httpPost()
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())

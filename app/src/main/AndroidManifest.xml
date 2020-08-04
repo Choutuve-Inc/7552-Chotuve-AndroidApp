@@ -15,16 +15,25 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".profile.ProfileActivity"
-            android:label="@string/ProfileActivity">
+        <activity android:name=".friendrequests.FriendRequestsActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".openchats.OpenChatsActivity" />
         </activity>
+        <activity android:name=".forgottenpassword.ChangePasswordActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".login.LoginActivity" />
+        </activity>
+        <activity
+            android:name=".profile.ProfileActivity"
+            android:label="@string/ProfileActivity" />
         <activity
             android:name=".chat.ChatActivity"
             android:label="@string/ChatActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".openchats.OpenChatsActivity">
-            </meta-data>
+                android:value=".openchats.OpenChatsActivity" />
         </activity>
         <activity android:name=".login.LoginActivity">
             <intent-filter>

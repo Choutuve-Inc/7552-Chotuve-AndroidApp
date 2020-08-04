@@ -1,160 +1,169 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".video.VideoActivity">
-
-    <FrameLayout
-        android:id="@+id/frm_video_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#000000">
-
-        <VideoView
-            android:id="@+id/vid_video_video_player"
-            android:layout_width="match_parent"
-            android:layout_height="320dp"
-            android:layout_gravity="center"/>
-        <ProgressBar
-            android:id="@+id/bar_video_progress"
-            android:visibility="invisible"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </FrameLayout>
-    <TextView
-        android:id="@+id/txt_video_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="2dp"
-        android:textSize="24sp"
-        android:textColor="@android:color/black"
-        android:textStyle="bold" />
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/lay_comment_box">
+
+        <FrameLayout
+            android:id="@+id/frm_video_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#000000">
+
+            <VideoView
+                android:id="@+id/vid_video_video_player"
+                android:layout_width="match_parent"
+                android:layout_height="320dp"
+                android:layout_gravity="center"/>
+            <ProgressBar
+                android:id="@+id/bar_video_progress"
+                android:visibility="invisible"
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </FrameLayout>
+        <TextView
+            android:id="@+id/txt_video_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="2dp"
+            android:textSize="24sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp">
+
+            <TextView
+                android:id="@+id/txt_video_user"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginTop="2dp"
+                android:gravity="center_vertical" />
+
+            <Button
+                android:id="@+id/btn_video_add_friend"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="2dp"
+                android:background="@drawable/add_friend" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="2dp">
+                <Button
+                    android:id="@+id/btn_video_upvote"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/upvote">
+                </Button>
+
+                <TextView
+                    android:id="@+id/lbl_video_upvote_count"
+                    android:layout_width="wrap_content"
+                    android:text="000"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="2dp">
+                <Button
+                    android:id="@+id/btn_video_downvote"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="@drawable/downvote">
+                </Button>
+
+                <TextView
+                    android:id="@+id/lbl_video_downvote_count"
+                    android:layout_width="wrap_content"
+                    android:text="000"
+                    android:textSize="12dp"
+                    android:textStyle="bold"
+                    android:layout_gravity="center"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/txt_video_user"
-            android:layout_width="wrap_content"
+            android:id="@+id/txt_video_date"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginTop="2dp"/>
+
+        <ScrollView
+            android:id="@+id/scr_video_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="2dp"
-            android:gravity="center_vertical" />
-
-        <Button
-            android:id="@+id/btn_video_add_friend"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_margin="2dp"
-            android:layout_gravity="center_vertical"
-            android:background="@drawable/add_friend"/>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="2dp">
-            <Button
-                android:id="@+id/btn_video_upvote"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="center_vertical"
-                android:background="@drawable/upvote">
-            </Button>
+            android:layout_marginEnd="5dp"
+            android:minHeight="40dp"
+            android:maxHeight="60dp">
 
             <TextView
-                android:id="@+id/lbl_video_upvote_count"
-                android:layout_width="wrap_content"
-                android:text="000"
-                android:textSize="12dp"
-                android:textStyle="bold"
-                android:layout_gravity="center"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
+                android:id="@+id/txt_video_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </ScrollView>
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/lbl_video_comments"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="2dp">
-            <Button
-                android:id="@+id/btn_video_downvote"
-                android:layout_gravity="center_vertical"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:background="@drawable/downvote">
-            </Button>
+            android:text="Comments:"
+            android:textStyle="bold"/>
 
-            <TextView
-                android:id="@+id/lbl_video_downvote_count"
-                android:layout_width="wrap_content"
-                android:text="000"
-                android:textSize="12dp"
-                android:textStyle="bold"
-                android:layout_gravity="center"
-                android:layout_height="wrap_content"/>
-        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rec_video_comments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_marginRight="4dp"
+            android:layout_marginBottom="8dp"
+            android:layout_weight="1"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:reverseLayout="true"
+             />
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/txt_video_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginTop="2dp"/>
-
-    <ScrollView
-        android:id="@+id/scr_video_desc"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="5dp"
-        android:minHeight="40dp"
-        android:maxHeight="60dp">
-
-        <TextView
-            android:id="@+id/txt_video_desc"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </ScrollView>
-
-    <TextView
-        android:id="@+id/lbl_video_comments"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Comments:"
-        android:textStyle="bold"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rec_video_comments"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:layout_marginRight="4dp"
-        android:layout_weight="1"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:reverseLayout="true"
-         />
-
     <LinearLayout
+        android:id="@+id/lay_comment_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/colorTextGray">
+        android:background="@color/colorTextGray"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <EditText
             android:id="@+id/txt_video_comment"
@@ -180,7 +189,6 @@
             android:background="@drawable/round_button"
             android:text="@string/send"
             android:textColor="@android:color/black"
-        />
+            />
     </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -15,6 +15,8 @@
         android:title="Profile"
         android:icon="@drawable/profile"
         />
+    <item android:id="@+id/top_chats_friend_request"
+        android:title="Friend Requests"/>
     <item android:id="@+id/top_chats_log_out"
         android:title="Sign Out"/>
 </menu>

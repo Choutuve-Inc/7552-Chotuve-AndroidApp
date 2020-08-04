@@ -16,12 +16,71 @@ import org.json.JSONObject
 class FriendsDataSource {
     companion object {
         private const val TAG: String = "Friends Data Source"
-        private const val serverURL: String = "https://serene-shelf-10674.herokuapp.com/users"
         private const val DEF_IMAGE: String = "https://firebasestorage.googleapis.com/v0/b/chotuve-android-media.appspot.com/o/userPic%2Fdefault_userPic.jpg?alt=media&token=fde26300-a5dc-434f-a5d0-17096e6a7d5a"
 
-        fun getUsersFromHTTP(): JSONArray{
+        fun getFriendListFromHTTP():JSONArray {
             val jsonList = JSONArray()
-            val (request, response, result) = serverURL.httpGet()
+            val requestsURL = "${ApplicationContext.getServerURL()}/friendlist"
+            val (request, response, result) = requestsURL.httpGet()
+                .appendHeader("user", ApplicationContext.getConnectedUsername())
+                .appendHeader("token", ApplicationContext.getConnectedToken())
+                .jsonBody(
+                    "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
+                            " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +
+                            "}"
+                )
+                .responseJson()
+            when (result) {
+                is Result.Success -> {
+                    Log.d(TAG, "HTTP Success [getFriendListFromHTTP]")
+                    val body = response.body()
+                    val result = JSONObject(body.asString("application/json"))
+                    return getUsersListFromHTTP(result["friends"] as JSONArray)
+                }
+                is Result.Failure -> {
+                    //Look up code and choose what to do.
+                    Log.d(TAG, "Error obtaining Users.")
+                }
+            }
+            return jsonList
+        }
+
+        fun getFriendRequestsFromHTTP(): JSONArray {
+            val jsonList = JSONArray()
+            val requestsURL = "${ApplicationContext.getServerURL()}/request"
+            val (request, response, result) = requestsURL.httpGet()
+                .appendHeader("user", ApplicationContext.getConnectedUsername())
+                .appendHeader("token", ApplicationContext.getConnectedToken())
+                .jsonBody(
+                    "{ \"user\" : \"${ApplicationContext.getConnectedUsername()}\"," +
+                            " \"token\" : \"${ApplicationContext.getConnectedToken()}\"" +
+                            "}"
+                )
+                .responseJson()
+            when (result) {
+                is Result.Success -> {
+                    Log.d(TAG, "HTTP Success [getFriendRequestsFromHTTP]")
+                    val body = response.body()
+                    val result = JSONObject(body.asString("application/json"))
+                    return getUsersListFromHTTP(result["requests"] as JSONArray)
+                }
+                is Result.Failure -> {
+                    //Look up code and choose what to do.
+                    Log.d(TAG, "Error obtaining Users.")
+                }
+            }
+            return jsonList
+        }
+
+        private fun getUsersListFromHTTP(jsonList: JSONArray): JSONArray {
+            var users = ","
+
+            for (i in 0 until jsonList.length()) {
+                users = "$users${jsonList.get(i)},"
+            }
+
+            val usersURL =  "${ApplicationContext.getServerURL()}/users/list/$users"
+            val (request, response, result) = usersURL.httpGet()
                 .appendHeader("user", ApplicationContext.getConnectedUsername())
                 .appendHeader("token", ApplicationContext.getConnectedToken())
                 .jsonBody(
@@ -46,7 +105,7 @@ class FriendsDataSource {
 
         fun getSingleUserFromHTTP(userID: String): JSONObject {
             val json = JSONObject()
-            val singleVideoURL = "$serverURL/$userID"
+            val singleVideoURL = "${ApplicationContext.getServerURL()}/users/$userID"
             val (request, response, result) = singleVideoURL.httpGet()
                 .appendHeader("user", ApplicationContext.getConnectedUsername())
                 .appendHeader("token", ApplicationContext.getConnectedToken())

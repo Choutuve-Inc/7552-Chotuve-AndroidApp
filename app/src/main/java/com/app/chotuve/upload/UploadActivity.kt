@@ -28,8 +28,6 @@ import java.util.*
 class UploadActivity  : AppCompatActivity() {
     private val TAG: String = "Upload Screen"
     private val MB_SIZE = 1048576.0
-    private val serverURL: String = "https://arcane-thicket-79100.herokuapp.com/videos"
-    //TODO private val serverURL: String = "https://choutuve-app-server.herokuapp.com/videos"
     private var selectedVideo: Uri? = null
     private var selectedVideoSize: Double = 0.0
     private var selectedVideoThumbnail: Bitmap? = null
@@ -156,7 +154,7 @@ class UploadActivity  : AppCompatActivity() {
         var resultCode: Int
         Log.d(TAG, "Size: $size")
         CoroutineScope(IO).launch {
-            val (request, response, result) = Fuel.post(serverURL)
+            val (request, response, result) = Fuel.post("${ApplicationContext.getServerURL()}/videos")
                 .appendHeader("user", ApplicationContext.getConnectedUsername())
                 .appendHeader("token", ApplicationContext.getConnectedToken())
                 .jsonBody(

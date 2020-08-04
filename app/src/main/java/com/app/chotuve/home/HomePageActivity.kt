@@ -72,6 +72,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
             R.id.top_home_profile -> {
                 Log.d(TAG, "Profile Button Clicked")
                 val intentToProfilePage = Intent(this@HomePageActivity, ProfileActivity::class.java)
+                intentToProfilePage.putExtra("userID", ApplicationContext.getConnectedUsername())
                 startActivity(intentToProfilePage)
             }
         }
@@ -80,8 +81,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
     }
 
     private fun logout(){
-        val serverURL = "https://serene-shelf-10674.herokuapp.com/logout"
-        Fuel.post(serverURL)
+        Fuel.post("${ApplicationContext.getServerURL()}/logout")
             .jsonBody(
                 "{ \"device\" : \"${ApplicationContext.getDeviceID()}\"}"
             )
@@ -126,7 +126,8 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
     }
 
     private suspend fun getData() {
-        var videos = VideoDataSource.getVideosFromHTTP()
+        var videos = VideoDataSource.getVideosFromHTTP(ApplicationContext.getConnectedUsername())
+        CoroutineScope(IO).launch{
         for (i in 0 until videos.length()) {
             val item = videos.getJSONObject(i)
             val date = item["date"] as String
@@ -134,10 +135,9 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
             val userID = item["user"] as String
             val thumbURL: String = item["thumbnail"] as String
             val vidID: Int = item["id"] as Int
-            Thread.sleep(10) //Needed for correct order on the video feed list
-            CoroutineScope(IO).launch{
+            //Thread.sleep(30) //Needed for correct order on the video feed list
                 val username = getUsernameFromHTTP(userID)
-                val video = VideoDataSource.getVideoFromFirebase(date, title, username, thumbURL, vidID)
+                val video = VideoDataSource.getVideoFromFirebase(date, title, username, thumbURL, vidID, userID)
                 addVideoToRecyclerView(video)
             }
         }
@@ -145,7 +145,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
     }
 
     private fun getUsernameFromHTTP(userID: String): String {
-        val serverURL = "https://serene-shelf-10674.herokuapp.com/users/${userID}"
+        val serverURL = "${ApplicationContext.getServerURL()}/users/${userID}"
         val (request, response, result) = serverURL.httpGet()
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())
@@ -196,6 +196,7 @@ class HomePageActivity  : AppCompatActivity(), VideoFeedRecyclerAdapter.OnVideoL
                     val intentToVideo = Intent(this@HomePageActivity, VideoActivity::class.java)
                     intentToVideo.putExtra("videoURL", videoURL)
                     intentToVideo.putExtra("title", selectedVideo.title)
+                    intentToVideo.putExtra("userID", selectedVideo.userID)
                     intentToVideo.putExtra("username", selectedVideo.username)
                     intentToVideo.putExtra("date", selectedVideo.date)
                     intentToVideo.putExtra("description", video["description"] as String)

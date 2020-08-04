@@ -13,6 +13,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.app.chotuve.R
+import com.app.chotuve.chat.ChatActivity
+import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.login.LoginActivity
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -33,10 +35,10 @@ class FCMReceiver : FirebaseMessagingService()  {
 
     override fun onMessageReceived(message: RemoteMessage) {
 
-        if (message.data.isNotEmpty()){
-            val title = message.data.get("title")
-            val messageText = message.data.get("body")
-            Log.d(TAG,"Recieved: $title - $messageText\nFrom:${message.from}")
+        if (message.data.isNotEmpty() && ApplicationContext.getShowNotifications()){
+            val title = message.data["title"]
+            val messageText = message.data["body"]
+            Log.d(TAG,"Received: $title - $messageText\nFrom:${message.from}")
 
             val intent = Intent(this, LoginActivity::class.java)
             val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)

@@ -1,12 +1,18 @@
 package com.app.chotuve.chat
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import com.app.chotuve.R
 import com.app.chotuve.context.ApplicationContext
 import com.app.chotuve.friendlist.Friend
+import com.app.chotuve.friendlist.FriendsActivity
 import com.app.chotuve.friendlist.FriendsDataSource
+import com.app.chotuve.home.HomePageActivity
+import com.app.chotuve.profile.ProfileActivity
 import com.app.chotuve.utils.TopSpacingItemDecoration
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
@@ -27,7 +33,6 @@ import org.json.JSONObject
 class ChatActivity : AppCompatActivity() {
     private val TAG = "Chat Activity"
     private val FRIEND_KEY = "FRIEND_KEY"
-    private val serverURL: String = "https://choutuve-app-server.herokuapp.com/notifications"
     private lateinit var chattingFriend: Friend
     private val chatAdapter = GroupAdapter<GroupieViewHolder>()
 
@@ -57,6 +62,34 @@ class ChatActivity : AppCompatActivity() {
         }
 
         listenForMessages()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        ApplicationContext.setShowNotifications(true)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ApplicationContext.setShowNotifications(false)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.top_menu_chat_page, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item?.itemId){
+            R.id.top_chat_profile -> {
+                Log.d(TAG, "Profile Button Clicked")
+                val intentToProfilePage = Intent(this@ChatActivity, ProfileActivity::class.java)
+                intentToProfilePage.putExtra("userID", chattingFriend.userID)
+                startActivity(intentToProfilePage)
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     private fun listenForMessages() {
@@ -112,19 +145,19 @@ class ChatActivity : AppCompatActivity() {
         val ocToRef = FirebaseDatabase.getInstance().getReference("/latest-messages/$toID/$fromID")
         ocToRef.setValue(chatMessage)
 
-        //postNotification() //TODO
+        postNotification()
     }
 
 
     private fun postNotification(){
         val deviceId = ApplicationContext.getDeviceID()
         Log.d(TAG,"device: $deviceId")
-        Fuel.post(serverURL)
+        Fuel.post("${ApplicationContext.getServerURL()}/notifications")
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())
             .jsonBody(
                 "{ \"idSender\" : \"${ApplicationContext.getConnectedUsername()}\"," +
-                        " \"idReciever\" : \"${deviceId}\", " +
+                        " \"idReceiver\" : \"${chattingFriend.userID}\", " +
                         "\"message\" : \"${txt_chat_enter_message.text}\"" +
                         "}"
             )

@@ -25,7 +25,7 @@ class ModelComment(
     }
 
     private fun getUsernameFromHTTP(viewHolder: GroupieViewHolder, userID: String) {
-        val serverURL = "https://serene-shelf-10674.herokuapp.com/users/${userID}"
+        val serverURL = "${ApplicationContext.getServerURL()}/users/${userID}"
         serverURL.httpGet()
             .appendHeader("user", ApplicationContext.getConnectedUsername())
             .appendHeader("token", ApplicationContext.getConnectedToken())

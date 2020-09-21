@@ -1,6 +1,10 @@
 # 7552-Chotuve-AndroidApp
 Choutuve, like YouTube, but without quality (Android Client)
 
+# Preamble
+
+This repository contains the code for the Android Application. The repository itself won't work unless it's connected to an App Server connected to both a Media and Authentication server. Find those repositories on [Chotuve's github](https://github.com/Choutuve-Inc)
+
 # Setup del Ambiente
 
 Para hacer correr la aplicación correctamente se necesita:
